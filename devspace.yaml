@@ -1,0 +1,96 @@
+version: v2beta1
+name: ebike3
+
+# This is a list of `pipelines` that DevSpace can execute (you can define your own)
+pipelines:
+  # This is the pipeline for the main command: `devspace dev` (or `devspace run-pipeline dev`)
+  dev:
+    run: |-
+      run_dependencies --all       # 1. Deploy any projects this project needs (see "dependencies")
+      ensure_pull_secrets --all    # 2. Ensure pull secrets
+      build_images --all           # 3. Build all images
+      create_deployments --all     # 4. Deploy Helm charts and manifests specfied as "deployments"
+      start_dev --all              # 5. Start all in dev mode (see "dev" section)
+  # You can run this pipeline via `devspace deploy` (or `devspace run-pipeline deploy`)
+  deploy:
+    run: |-
+      run_dependencies --all                            # 1. Deploy any projects this project needs (see "dependencies")
+      ensure_pull_secrets --all                         # 2. Ensure pull secrets
+      build_images --all -t $(git describe --always)    # 3. Build, tag (git commit hash) and push all images (see "images")
+      create_deployments --all                          # 4. Deploy Helm charts and manifests specfied as "deployments"
+
+# This is a list of `images` that DevSpace can build for this project
+# We recommend to skip image building during development (devspace dev) as much as possible
+images:
+  frontend:
+    image: ebike3/frontend:latest
+    dockerfile: packages/frontend/Dockerfile.dev
+    context: packages/frontend/
+  gateway:
+    image: ebike3/gateway:latest
+    dockerfile: packages/gateway/Dockerfile
+    context: packages/gateway/
+  auth:
+    image: ebike3/auth:latest
+    dockerfile: packages/auth/Dockerfile.dev
+    context: packages/auth/
+
+# This is a list of `deployments` that DevSpace can create for this project
+deployments:
+  frontend:
+    kubectl:
+      manifests:
+        - manifests/frontend.yaml
+  gateway:
+    kubectl:
+      manifests:
+        - manifests/gateway.yaml
+  auth:
+    kubectl:
+      manifests:
+        - manifests/auth-postgres.yaml
+        - manifests/auth.yaml
+
+# This is a list of `dev` containers that are based on the containers created by your deployments
+dev:
+  frontend:
+    imageSelector: ebike3/frontend:latest
+    sync:
+      - path: ./packages/frontend:/app
+        disableDownload: true
+        excludePaths:
+          - node_modules/
+    ports:
+      - port: "3000"
+
+  gateway:
+    imageSelector: ebike3/gateway:latest
+    command: ["bun", "run", "dev"]
+    sync:
+      - path: ./packages/gateway:/app
+        disableDownload: true
+        excludePaths:
+          - node_modules/
+    ports:
+      - port: "4000"
+
+  auth:
+    imageSelector: ebike3/auth:latest
+    sync:
+      - path: ./packages/auth:/app
+        disableDownload: true
+
+# Use the `commands` section to define repeatable dev workflows for this project
+commands:
+  migrate-db:
+    command: |-
+      echo 'This is a cross-platform, shared command that can be used to codify any kind of dev task.'
+      echo 'Anyone using this project can invoke it via "devspace run migrate-db"'
+
+# Define dependencies to other projects with a devspace.yaml
+# dependencies:
+#   api:
+#     git: https://...  # Git-based dependencies
+#     tag: v1.0.0
+#   ui:
+#     path: ./ui        # Path-based dependencies (for monorepos)

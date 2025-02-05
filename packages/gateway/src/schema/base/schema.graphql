@@ -1,0 +1,5 @@
+type Query
+type Mutation
+
+directive @loggedIn on FIELD_DEFINITION
+directive @notLoggedIn on FIELD_DEFINITION

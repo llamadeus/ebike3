@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+        - name: gateway
+          image: ebike3/gateway:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 4000
+          volumeMounts:
+            - name: jwt-private-key-volume
+              mountPath: /secrets/jwt-key.pem
+              subPath: jwt-key.pem
+              readOnly: true
+            - name: jwt-public-key-volume
+              mountPath: /secrets/jwt-key.pub
+              subPath: jwt-key.pub
+              readOnly: true
+          env:
+            - name: SERVICE_ID
+              value: "0"
+            - name: JWT_PRIVATE_KEY_PATH
+              value: /secrets/jwt-key.pem
+            - name: JWT_PUBLIC_KEY_PATH
+              value: /secrets/jwt-key.pub
+      volumes:
+        - name: jwt-private-key-volume
+          secret:
+            secretName: jwt-private-key
+        - name: jwt-public-key-volume
+          secret:
+            secretName: jwt-public-key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+spec:
+  selector:
+    app: gateway
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 4000
+  type: LoadBalancer

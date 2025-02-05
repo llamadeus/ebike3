@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: ebike3/auth:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5001
+          env:
+            - name: SERVICE_ID
+              value: "1"
+            - name: DB_HOST
+              value: auth-postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: ebike3
+            - name: DB_PASSWORD
+              value: ebike3
+            - name: DB_DATABASE
+              value: auth
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+spec:
+  selector:
+    app: auth
+  ports:
+    - protocol: TCP
+      port: 5001
+      targetPort: 5001

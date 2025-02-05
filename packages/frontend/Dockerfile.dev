@@ -1,0 +1,20 @@
+# Use an official Bun image
+FROM oven/bun:1.2.2-alpine
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy package manifests for dependency installation
+COPY package.json bun.lock ./
+
+# Install dependencies with Bun
+RUN bun install --frozen-lockfile
+
+# Copy the rest of the application code
+COPY . .
+
+# Expose the Next.js default dev server port
+EXPOSE 3000
+
+# Start the Next.js development server
+CMD ["bun", "run", "dev"]
