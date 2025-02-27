@@ -1,7 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: auth
+  name: auth-pod
+  labels:
+    app: auth
 spec:
   replicas: 1
   selector:
@@ -13,7 +15,7 @@ spec:
         app: auth
     spec:
       containers:
-        - name: auth
+        - name: auth-container
           image: ebike3/auth:latest
           imagePullPolicy: Never
           ports:
@@ -22,7 +24,7 @@ spec:
             - name: SERVICE_ID
               value: "1"
             - name: DB_HOST
-              value: auth-postgres
+              value: auth-postgres-service
             - name: DB_PORT
               value: "5432"
             - name: DB_USER
@@ -36,6 +38,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: auth-service
+  labels:
+    app: auth
 spec:
   selector:
     app: auth
