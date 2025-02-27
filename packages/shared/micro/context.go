@@ -2,22 +2,28 @@ package micro
 
 import "net/http"
 
-type Context[T any] interface {
+type Context[TParams any, TInput any] interface {
 	Header() http.Header
-	Input() T
+	Params() TParams
+	Input() TInput
 }
 
-type handlerContext[T any] struct {
+type handlerContext[TParams any, TInput any] struct {
 	header http.Header
-	input  T
+	params TParams
+	input  TInput
 }
 
-var _ Context[any] = (*handlerContext[any])(nil)
+var _ Context[any, any] = (*handlerContext[any, any])(nil)
 
-func (c *handlerContext[T]) Header() http.Header {
+func (c *handlerContext[TParams, TInput]) Header() http.Header {
 	return c.header
 }
 
-func (c *handlerContext[T]) Input() T {
+func (c *handlerContext[TParams, TInput]) Params() TParams {
+	return c.params
+}
+
+func (c *handlerContext[TParams, TInput]) Input() TInput {
 	return c.input
 }

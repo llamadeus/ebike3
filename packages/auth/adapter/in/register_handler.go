@@ -14,7 +14,7 @@ func MakeRegisterHandler(authService in.AuthService) micro.HTTPHandler {
 		Role     model.UserRole `json:"role" validate:"required,oneof=ADMIN CUSTOMER"`
 	}
 
-	return micro.MakeHandler(func(ctx micro.Context[input]) (*dto.UserDTO, error) {
+	return micro.MakeHandler(func(ctx micro.Context[any, input]) (*dto.UserDTO, error) {
 		auth, err := authService.RegisterUser(ctx.Input().Username, ctx.Input().Password, ctx.Input().Role)
 		if auth == nil {
 			return nil, err
