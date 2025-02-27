@@ -6,15 +6,20 @@ import { Json } from "~/infrastructure/types/json";
 type Service =
   | "auth";
 
+type RequestHeaders = {
+  "X-Request-ID": string,
+  [key: string]: string,
+};
+
 interface GetOptions<TOutput extends z.ZodTypeAny> {
   endpoint: `GET /${string}`;
-  headers?: Record<string, string>;
+  headers: RequestHeaders;
   output: TOutput;
 }
 
 interface PostOptions<TOutput extends z.ZodTypeAny> {
   endpoint: `POST /${string}`;
-  headers?: Record<string, string>;
+  headers: RequestHeaders;
   input?: Json;
   output: TOutput;
 }
