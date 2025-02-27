@@ -6,7 +6,7 @@ import (
 	"github.com/llamadeus/ebike3/packages/auth/infrastructure/micro"
 )
 
-func NewAuthHandler(authService in.AuthService) micro.HTTPHandler {
+func MakeAuthHandler(authService in.AuthService) micro.HTTPHandler {
 	return micro.MakeHandler(func(ctx micro.Context[any]) (*dto.UserDTO, error) {
 		sessionID, err := dto.IDFromDTO(ctx.Header().Get("X-Session-ID"))
 		if err != nil {
