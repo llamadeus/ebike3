@@ -29,6 +29,5 @@ export const login: NonNullable<MutationResolvers["login"]> = async (_parent, _a
     username: data.username,
     role: data.role,
     lastLogin: data.lastLogin,
-    sessionId: data.sessionId,
   };
 };
