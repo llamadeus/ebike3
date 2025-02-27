@@ -14,12 +14,12 @@ export const registerCustomer: NonNullable<MutationResolvers["registerCustomer"]
     headers: {
       "X-Request-ID": _ctx.requestId,
     },
-    output: authSchema,
     input: {
       username: _arg.username,
       password: _arg.password,
       role: "CUSTOMER",
     },
+    output: authSchema,
   });
 
   // Login the user

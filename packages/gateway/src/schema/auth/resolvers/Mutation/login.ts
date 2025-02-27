@@ -14,11 +14,11 @@ export const login: NonNullable<MutationResolvers["login"]> = async (_parent, _a
     headers: {
       "X-Request-ID": _ctx.requestId,
     },
-    output: authSchema,
     input: {
       username: _arg.username,
       password: _arg.password,
     },
+    output: authSchema,
   });
 
   // Login the user

@@ -14,12 +14,12 @@ export const registerAdmin: NonNullable<MutationResolvers["registerAdmin"]> = as
     headers: {
       "X-Request-ID": _ctx.requestId,
     },
-    output: authSchema,
     input: {
       username: _arg.username,
       password: _arg.password,
       role: "ADMIN",
     },
+    output: authSchema,
   });
 
   // Login the user
