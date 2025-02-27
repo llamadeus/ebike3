@@ -12,6 +12,9 @@ type Config struct {
 	DatabaseUser     string `env:"DB_USER,required"`
 	DatabasePassword string `env:"DB_PASSWORD,required"`
 	DatabaseName     string `env:"DB_DATABASE,required"`
+
+	KafkaBroker  string `env:"KAFKA_BROKER,required"`
+	KafkaGroupID string `env:"KAFKA_GROUP_ID,required"`
 }
 
 var config Config

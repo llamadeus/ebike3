@@ -33,6 +33,10 @@ spec:
               value: ebike3
             - name: DB_DATABASE
               value: auth
+            - name: KAFKA_BROKER
+              value: kafka-service:9092
+            - name: KAFKA_GROUP_ID
+              value: auth
 ---
 apiVersion: v1
 kind: Service

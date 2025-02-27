@@ -37,6 +37,10 @@ images:
 
 # This is a list of `deployments` that DevSpace can create for this project
 deployments:
+  kafka:
+    kubectl:
+      manifests:
+        - manifests/kafka.yaml
   frontend:
     kubectl:
       manifests:
