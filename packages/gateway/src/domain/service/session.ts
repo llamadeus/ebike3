@@ -24,6 +24,10 @@ export interface Session {
    * The session id.
    */
   sessionId: string;
+  /**
+   * The last login time.
+   */
+  lastLogin: string;
 }
 
 /**
@@ -57,6 +61,7 @@ export class SessionService {
       username: user.username,
       role: user.role,
       sessionId: user.sessionId,
+      lastLogin: user.lastLogin,
     });
 
     // Set the cookie
