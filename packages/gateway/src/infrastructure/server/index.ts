@@ -92,14 +92,17 @@ export function makeYogaServer(options: Options): YogaServerInstance<ResolverCon
             output: authSchema.nullable(),
           });
 
-          if (auth === null) {
-            options.sessionService.destroySession(initialContext.request);
-
+          if (auth?.id !== session.id) {
             session = null;
+            options.sessionService.destroySession(initialContext.request);
           }
         }
         catch (err) {
+          // TODO: Add better error handling
           console.log(err);
+
+          session = null;
+          options.sessionService.destroySession(initialContext.request);
         }
       }
 
