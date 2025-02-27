@@ -12,7 +12,7 @@ func MakeLoginHandler(authService in.AuthService) micro.HTTPHandler {
 		Password string `json:"password" validate:"required,min=8"`
 	}
 
-	return micro.MakeHandler[input, dto.UserDTO](func(ctx micro.Context[input]) (*dto.UserDTO, error) {
+	return micro.MakeHandler(func(ctx micro.Context[input]) (*dto.UserDTO, error) {
 		auth, err := authService.LoginUser(ctx.Input().Username, ctx.Input().Password)
 		if auth == nil {
 			return nil, err

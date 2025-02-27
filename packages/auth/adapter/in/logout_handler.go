@@ -11,7 +11,7 @@ func MakeLogoutHandler(authService in.AuthService) micro.HTTPHandler {
 		Status string `json:"status"`
 	}
 
-	return micro.MakeHandler[any, output](func(ctx micro.Context[any]) (*output, error) {
+	return micro.MakeHandler(func(ctx micro.Context[any]) (*output, error) {
 		sessionID, err := dto.IDFromDTO(ctx.Header().Get("X-Session-ID"))
 		if err != nil {
 			return nil, err
