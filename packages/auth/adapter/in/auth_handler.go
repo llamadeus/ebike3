@@ -8,7 +8,11 @@ import (
 
 func NewAuthHandler(authService in.AuthService) micro.HTTPHandler {
 	return micro.MakeHandler[any, dto.UserDTO](func(ctx micro.Context[any]) (*dto.UserDTO, error) {
-		sessionID := ctx.Header().Get("X-Session-ID")
+		sessionID, err := dto.IDFromDTO(ctx.Header().Get("X-Session-ID"))
+		if err != nil {
+			return nil, err
+		}
+
 		auth, err := authService.GetAuthBySessionID(sessionID)
 		if auth == nil {
 			return nil, err

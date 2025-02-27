@@ -4,36 +4,48 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/llamadeus/ebike3/packages/auth/adapter/out/dto"
+	"github.com/llamadeus/ebike3/packages/auth/domain/events"
 	"github.com/llamadeus/ebike3/packages/auth/domain/model"
 	"github.com/llamadeus/ebike3/packages/auth/domain/port/in"
 	"github.com/llamadeus/ebike3/packages/auth/domain/port/out"
 	"github.com/llamadeus/ebike3/packages/auth/infrastructure/micro"
-	"github.com/llamadeus/ebike3/packages/auth/infrastructure/utils"
+	"golang.org/x/crypto/bcrypt"
+	"log/slog"
 )
 
 // AuthService implements the AuthService interface.
 type AuthService struct {
+	kafka      micro.Kafka
 	repository out.AuthRepository
+}
+
+type UserRegisteredEvent struct {
+	ID       string `json:"id"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
 }
 
 // Ensure that AuthService implements the AuthService interface.
 var _ in.AuthService = (*AuthService)(nil)
 
 // NewAuthService creates a new instance of the AuthService.
-func NewAuthService(repository out.AuthRepository) *AuthService {
+func NewAuthService(kafka micro.Kafka, repository out.AuthRepository) *AuthService {
 	return &AuthService{
+		kafka:      kafka,
 		repository: repository,
 	}
 }
 
 // GetAuthBySessionID returns the auth with the given session id.
-func (s *AuthService) GetAuthBySessionID(sessionID string) (*model.Auth, error) {
-	session, err := s.repository.GetSessionBySessionID(sessionID)
+func (s *AuthService) GetAuthBySessionID(sessionID uint64) (*model.Auth, error) {
+	session, err := s.repository.GetSessionByID(sessionID)
 	if err != nil {
 		return nil, err
 	}
 
 	if session == nil || session.DeletedAt.Valid {
+		slog.Info("invalid session", "sessionID", sessionID)
 		return nil, micro.NewBadRequestError("invalid session")
 	}
 
@@ -57,7 +69,7 @@ func (s *AuthService) RegisterUser(username string, password string, role model.
 		return nil, micro.NewBadRequestError("user already exists")
 	}
 
-	hashed, err := utils.HashPassword(password)
+	hashed, err := s.hashPassword(password)
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to hash password: %v", err))
 	}
@@ -65,6 +77,16 @@ func (s *AuthService) RegisterUser(username string, password string, role model.
 	auth, err := s.repository.CreateUserWithSession(username, hashed, role)
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to create user with session: %v", err))
+	}
+
+	event := micro.NewEvent(events.AuthUserRegisteredEventType, UserRegisteredEvent{
+		ID:       dto.IDToDTO(auth.User.ID),
+		Username: auth.User.Username,
+		Role:     dto.RoleToDTO(auth.User.Role),
+	})
+	err = s.kafka.Producer().Send(events.AuthTopic, event.Payload.ID, event)
+	if err != nil {
+		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to send kafka event: %v", err))
 	}
 
 	return auth, nil
@@ -81,7 +103,7 @@ func (s *AuthService) LoginUser(username string, password string) (*model.Auth, 
 		return nil, micro.NewBadRequestError("invalid username or password")
 	}
 
-	if !utils.VerifyPassword(password, user.Password) {
+	if !s.verifyPassword(password, user.Password) {
 		return nil, micro.NewBadRequestError("invalid username or password")
 	}
 
@@ -96,6 +118,20 @@ func (s *AuthService) LoginUser(username string, password string) (*model.Auth, 
 	}, nil
 }
 
-func (s *AuthService) TerminateSession(sessionID string) error {
+func (s *AuthService) TerminateSession(sessionID uint64) error {
 	return s.repository.TerminateSession(sessionID)
+}
+
+// hashPassword hashes the given password using bcrypt.
+func (s *AuthService) hashPassword(password string) (string, error) {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+
+	return string(bytes), err
+}
+
+// verifyPassword verifies if the given password matches the stored hash.
+func (s *AuthService) verifyPassword(password, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+
+	return err == nil
 }

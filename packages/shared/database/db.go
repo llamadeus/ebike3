@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"log/slog"
 	"time"
 )
 
@@ -41,17 +40,15 @@ func Open(options Options) (*sqlx.DB, error) {
 	}
 
 	if err != nil {
-		slog.Error("cannot open database", "error", err)
 		return nil, err
 	}
 
 	return db, nil
 }
 
-func Migrate(db *sqlx.DB) error {
+func Migrate(db *sqlx.DB, schema string) error {
 	_, err := db.Exec(schema)
 	if err != nil {
-		slog.Error("cannot migrate database", "error", err)
 		return err
 	}
 

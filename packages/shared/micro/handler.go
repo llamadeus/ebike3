@@ -3,7 +3,6 @@ package micro
 import (
 	"encoding/json"
 	"errors"
-	"github.com/llamadeus/ebike3/packages/auth/infrastructure/utils"
 	"io"
 	"log/slog"
 	"net/http"
@@ -17,25 +16,24 @@ type (
 
 func MakeHandler[TInput any, TOutput any](handler Handler[TInput, TOutput]) HTTPHandler {
 	return func(writer http.ResponseWriter, request *http.Request) {
+		// TODO: Enable this in production
 		// Check if request body is application/json
 		//if request.Header.Get("Content-Type") != "application/json" {
 		//	writer.WriteHeader(http.StatusBadRequest)
 		//	return
 		//}
 
-		var input TInput
-		decoder := json.NewDecoder(request.Body)
-		err := decoder.Decode(&input)
-		if err != nil && !errors.Is(err, io.EOF) {
+		input, err := decodeRequestBody[TInput](request)
+		if err != nil {
 			slog.Error("error decoding request body", "error", err)
 
 			sendError(writer, http.StatusBadRequest, "invalid request body")
 			return
 		}
 
-		err = utils.ValidateStruct[TInput](&input)
+		err = ValidateStruct[TInput](&input)
 		if err != nil {
-			var validationError *utils.ValidationError
+			var validationError *ValidationError
 			if errors.As(err, &validationError) {
 				slog.Error("validation error", "error", err)
 
@@ -72,6 +70,17 @@ func MakeHandler[TInput any, TOutput any](handler Handler[TInput, TOutput]) HTTP
 
 		sendJSON(writer, http.StatusOK, output)
 	}
+}
+
+func decodeRequestBody[TInput any](request *http.Request) (TInput, error) {
+	var input TInput
+	decoder := json.NewDecoder(request.Body)
+	err := decoder.Decode(&input)
+	if err != nil && !errors.Is(err, io.EOF) {
+		return input, err
+	}
+
+	return input, nil
 }
 
 func sendJSON[T any](writer http.ResponseWriter, statusCode int, data T) {

@@ -2,7 +2,6 @@ package dto
 
 import (
 	"github.com/llamadeus/ebike3/packages/auth/domain/model"
-	"github.com/llamadeus/ebike3/packages/auth/infrastructure/utils"
 	"time"
 )
 
@@ -18,12 +17,16 @@ type UserDTO struct {
 
 func UserToDTO(user *model.User, session *model.Session) *UserDTO {
 	return &UserDTO{
-		ID:        string(utils.Base62.FormatUint(user.ID)),
+		ID:        IDToDTO(user.ID),
 		Username:  user.Username,
-		Role:      string(user.Role),
+		Role:      RoleToDTO(user.Role),
 		LastLogin: user.LastLogin.Time.Format(time.RFC3339),
 		CreatedAt: user.CreatedAt.Format(time.RFC3339),
 		UpdatedAt: user.UpdatedAt.Format(time.RFC3339),
-		SessionID: session.SessionID,
+		SessionID: IDToDTO(session.ID),
 	}
+}
+
+func RoleToDTO(role model.UserRole) string {
+	return string(role)
 }

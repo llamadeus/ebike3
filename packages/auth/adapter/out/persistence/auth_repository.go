@@ -45,10 +45,9 @@ func (r *AuthRepository) CreateUserWithSession(username string, password string,
 			return err
 		}
 
-		_, err = tx.NamedExec("INSERT INTO sessions (id, user_id, session_id) VALUES (:id, :user_id, :session_id)", map[string]any{
-			"id":         sessionID,
-			"user_id":    userID,
-			"session_id": sessionID,
+		_, err = tx.NamedExec("INSERT INTO sessions (id, user_id) VALUES (:id, :user_id)", map[string]any{
+			"id":      sessionID,
+			"user_id": userID,
 		})
 		if err != nil {
 			return err
@@ -83,10 +82,9 @@ func (r *AuthRepository) CreateSessionAndUpdateLastLogin(user *model.User) (*mod
 	}
 
 	err = database.RunInTx(r.db, func(tx *sqlx.Tx) error {
-		_, err = r.db.NamedExec("INSERT INTO sessions (id, user_id, session_id) VALUES (:id, :user_id, :session_id)", map[string]any{
-			"id":         sessionID,
-			"user_id":    user.ID,
-			"session_id": sessionID,
+		_, err = r.db.NamedExec("INSERT INTO sessions (id, user_id) VALUES (:id, :user_id)", map[string]any{
+			"id":      sessionID,
+			"user_id": user.ID,
 		})
 		if err != nil {
 			return err
@@ -145,21 +143,8 @@ func (r *AuthRepository) GetSessionByID(id uint64) (*model.Session, error) {
 	return &session, nil
 }
 
-func (r *AuthRepository) GetSessionBySessionID(sessionID string) (*model.Session, error) {
-	var session model.Session
-	err := r.db.Get(&session, "SELECT * FROM sessions WHERE session_id=$1 LIMIT 1", sessionID)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
-		return nil, err
-	}
-
-	return &session, nil
-}
-
-func (r *AuthRepository) TerminateSession(sessionID string) error {
-	_, err := r.db.Exec("UPDATE sessions SET deleted_at=NOW() WHERE session_id=$1", sessionID)
+func (r *AuthRepository) TerminateSession(id uint64) error {
+	_, err := r.db.Exec("UPDATE sessions SET deleted_at=NOW() WHERE id=$1", id)
 
 	return err
 }

@@ -18,6 +18,6 @@ type User struct {
 type UserRole string
 
 const (
-	UserRoleAdmin UserRole = "ADMIN"
-	UserRoleUser  UserRole = "USER"
+	UserRoleAdmin    UserRole = "ADMIN"
+	UserRoleCustomer UserRole = "CUSTOMER"
 )

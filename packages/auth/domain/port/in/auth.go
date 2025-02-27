@@ -4,7 +4,7 @@ import "github.com/llamadeus/ebike3/packages/auth/domain/model"
 
 type AuthService interface {
 	// GetAuthBySessionID returns the auth with the given session id.
-	GetAuthBySessionID(sessionID string) (*model.Auth, error)
+	GetAuthBySessionID(sessionID uint64) (*model.Auth, error)
 
 	// RegisterUser registers a new user and returns it.
 	RegisterUser(username string, password string, role model.UserRole) (*model.Auth, error)
@@ -13,5 +13,5 @@ type AuthService interface {
 	LoginUser(username string, password string) (*model.Auth, error)
 
 	// TerminateSession terminates the session with the given id.
-	TerminateSession(sessionID string) error
+	TerminateSession(sessionID uint64) error
 }

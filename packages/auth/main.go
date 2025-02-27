@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/llamadeus/ebike3/packages/auth/adapter/in"
 	"github.com/llamadeus/ebike3/packages/auth/adapter/out/persistence"
+	"github.com/llamadeus/ebike3/packages/auth/domain/events"
 	"github.com/llamadeus/ebike3/packages/auth/domain/service"
 	"github.com/llamadeus/ebike3/packages/auth/infrastructure/config"
 	"github.com/llamadeus/ebike3/packages/auth/infrastructure/database"
@@ -15,6 +16,28 @@ import (
 
 const (
 	serverAddr = ":5001"
+
+	schema = `
+CREATE TABLE IF NOT EXISTS users (
+	id BIGINT PRIMARY KEY,
+	username VARCHAR(255) NOT NULL UNIQUE,
+	password VARCHAR(255) NOT NULL,
+	role VARCHAR(50) NOT NULL,
+	last_login TIMESTAMP NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+	id BIGINT PRIMARY KEY,
+	user_id BIGINT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
+    
+    CONSTRAINT fk_sessions_users
+        FOREIGN KEY (user_id)
+        REFERENCES users (id)
+);`
 )
 
 func init() {
@@ -40,20 +63,47 @@ func main() {
 		Database: config.Get().DatabaseName,
 	})
 	if err != nil {
+		slog.Error("failed to open database", "error", err)
 		os.Exit(1)
 	}
+	defer db.Close()
 
-	err = database.Migrate(db)
+	err = database.Migrate(db, schema)
 	if err != nil {
+		slog.Error("failed to migrate database", "error", err)
 		os.Exit(1)
 	}
 
 	db.MustExec("TRUNCATE TABLE users CASCADE")
 	db.MustExec("TRUNCATE TABLE sessions CASCADE")
 
+	// Configure kafka
+	kafka, err := micro.NewKafka(config.Get().KafkaBroker)
+	if err != nil {
+		slog.Error("failed to create kafka client", "error", err)
+		os.Exit(1)
+	}
+	defer kafka.Close()
+
+	consumer, err := kafka.NewConsumer(events.AuthTopic, config.Get().KafkaGroupID)
+	if err != nil {
+		slog.Error("failed to create kafka consumer", "error", err)
+		os.Exit(1)
+	}
+	defer consumer.Stop()
+
+	go func() {
+		err = consumer.Start(in.EventsProcessor)
+		if err != nil {
+			slog.Error("error starting consumer", "error", err)
+			os.Exit(1)
+		}
+	}()
+	<-consumer.Ready()
+
 	// Configure services
 	authRepository := persistence.NewAuthRepository(db, snowflake)
-	authService := service.NewAuthService(authRepository)
+	authService := service.NewAuthService(kafka, authRepository)
 
 	// Configure service
 	mux := http.NewServeMux()
@@ -63,6 +113,7 @@ func main() {
 	mux.HandleFunc("POST /logout", in.MakeLogoutHandler(authService))
 
 	if err := micro.Run(mux, serverAddr); err != nil {
+		slog.Error("Failed to run server", "error", err)
 		os.Exit(1)
 	}
 }

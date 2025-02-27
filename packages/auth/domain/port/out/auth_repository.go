@@ -14,7 +14,5 @@ type AuthRepository interface {
 
 	GetSessionByID(id uint64) (*model.Session, error)
 
-	GetSessionBySessionID(sessionID string) (*model.Session, error)
-
-	TerminateSession(sessionID string) error
+	TerminateSession(id uint64) error
 }
