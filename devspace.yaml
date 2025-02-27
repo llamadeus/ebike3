@@ -59,6 +59,7 @@ dev:
       - path: ./packages/frontend:/app
         disableDownload: true
         excludePaths:
+          - .next/
           - node_modules/
     ports:
       - port: "3000"
