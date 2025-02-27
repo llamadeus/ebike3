@@ -7,9 +7,9 @@ export const auth: NonNullable<QueryResolvers["auth"]> = async (_parent, _arg, _
   }
 
   return {
-    id: _ctx.session.user.id,
-    username: _ctx.session.user.username,
-    role: _ctx.session.user.role,
-    lastLogin: _ctx.session.user.lastLogin,
+    id: _ctx.session.id,
+    username: _ctx.session.username,
+    role: _ctx.session.role,
+    lastLogin: _ctx.session.lastLogin,
   };
 };
