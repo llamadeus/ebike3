@@ -8,7 +8,7 @@ export default {
     "src/schema": defineConfig({
       mergeSchema: false,
       typesPluginsConfig: {
-        contextType: "../infrastructure/server/graphql#ResolverContext",
+        contextType: "../infrastructure/server#ResolverContext",
       },
     }),
   },
