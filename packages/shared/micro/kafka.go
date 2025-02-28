@@ -1,5 +1,10 @@
 package micro
 
+import (
+	"log/slog"
+	"os"
+)
+
 type Kafka interface {
 	Producer() Producer
 	NewConsumer(topic string, groupID string) (Consumer, error)
@@ -29,6 +34,24 @@ func (k *kafka) Producer() Producer {
 
 func (k *kafka) NewConsumer(topic string, groupID string) (Consumer, error) {
 	return newConsumer(k.broker, topic, groupID)
+}
+
+func (k *kafka) StartProcessor(topic string, groupID string, processor *EventsProcessor) (Consumer, error) {
+	consumer, err := k.NewConsumer(topic, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	go func() {
+		err = consumer.Start(processor)
+		if err != nil {
+			slog.Error("error starting consumer", "error", err)
+			os.Exit(1)
+		}
+	}()
+	<-consumer.Ready()
+
+	return consumer, nil
 }
 
 func (k *kafka) Close() error {
