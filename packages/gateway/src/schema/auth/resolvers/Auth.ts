@@ -1,4 +1,4 @@
-import type { AuthResolvers } from "./../../types.generated";
+import type { AuthResolvers } from "~/schema/types.generated";
 
 
 export const Auth: AuthResolvers = {
