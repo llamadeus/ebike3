@@ -14,7 +14,7 @@ func MakeLogoutHandler(authService in.AuthService) micro.HTTPHandler {
 	return micro.MakeHandler(func(ctx micro.Context[any, any]) (*output, error) {
 		sessionID, err := dto.IDFromDTO(ctx.Header().Get("X-Session-ID"))
 		if err != nil {
-			return nil, err
+			return nil, micro.NewBadRequestError("invalid session id")
 		}
 
 		err = authService.TerminateSession(sessionID)
