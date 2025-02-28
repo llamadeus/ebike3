@@ -6,7 +6,7 @@ import (
 	"log/slog"
 )
 
-var EventsProcessor = micro.NewEventsProcessor(micro.HandlersMap{
+var AuthEventsProcessor = micro.NewEventsProcessor(micro.HandlersMap{
 	events.AuthUserRegisteredEventType: micro.NewEventHandler(func(payload events.UserRegisteredEvent) error {
 		slog.Info(
 			"user registered",

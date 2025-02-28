@@ -85,21 +85,12 @@ func main() {
 	}
 	defer kafka.Close()
 
-	consumer, err := kafka.NewConsumer(events.AuthTopic, config.Get().KafkaGroupID)
+	consumer, err := kafka.StartProcessor(events.AuthTopic, config.Get().KafkaGroupID, in.AuthEventsProcessor)
 	if err != nil {
-		slog.Error("failed to create kafka consumer", "error", err)
+		slog.Error("failed to start event processor", "error", err)
 		os.Exit(1)
 	}
 	defer consumer.Stop()
-
-	go func() {
-		err = consumer.Start(in.EventsProcessor)
-		if err != nil {
-			slog.Error("error starting consumer", "error", err)
-			os.Exit(1)
-		}
-	}()
-	<-consumer.Ready()
 
 	// Configure services
 	authRepository := persistence.NewAuthRepository(db, snowflake)
