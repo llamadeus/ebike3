@@ -85,16 +85,10 @@ func main() {
 	}
 	defer kafka.Close()
 
-	consumer, err := kafka.StartProcessor(events.AuthTopic, config.Get().KafkaGroupID, in.AuthEventsProcessor)
-	if err != nil {
-		slog.Error("failed to start event processor", "error", err)
-		os.Exit(1)
-	}
-	defer consumer.Stop()
-
 	// Configure services
 	authRepository := persistence.NewAuthRepository(db, snowflake)
 	authService := service.NewAuthService(kafka, authRepository)
+	authEventsProcessor := in.MakeAuthEventsProcessor()
 
 	// Configure service
 	mux := http.NewServeMux()
@@ -102,6 +96,14 @@ func main() {
 	mux.HandleFunc("POST /login", in.MakeLoginHandler(authService))
 	mux.HandleFunc("POST /register", in.MakeRegisterHandler(authService))
 	mux.HandleFunc("POST /logout", in.MakeLogoutHandler(authService))
+
+	// Start event processor
+	consumer, err := kafka.StartProcessor(events.AuthTopic, config.Get().KafkaGroupID, authEventsProcessor)
+	if err != nil {
+		slog.Error("failed to start event processor", "error", err)
+		os.Exit(1)
+	}
+	defer consumer.Stop()
 
 	if err := micro.Run(mux, serverAddr); err != nil {
 		slog.Error("Failed to run server", "error", err)
