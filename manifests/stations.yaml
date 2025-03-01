@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stations-pod
+  labels:
+    app: stations
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stations
+  template:
+    metadata:
+      labels:
+        app: stations
+    spec:
+      containers:
+        - name: stations-container
+          image: ebike3/stations:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5001
+          env:
+            - name: SERVICE_ID
+              value: "2"
+            - name: DB_HOST
+              value: stations-postgres-service
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: ebike3
+            - name: DB_PASSWORD
+              value: ebike3
+            - name: DB_DATABASE
+              value: stations
+            - name: MONGO_URI
+              value: mongodb://stations-mongo-service:27017
+            - name: MONGO_DATABASE
+              value: stations
+            - name: MONGO_COLLECTION
+              value: stations
+            - name: KAFKA_BROKER
+              value: kafka-service:9092
+            - name: KAFKA_GROUP_ID
+              value: stations
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stations-service
+  labels:
+    app: stations
+spec:
+  selector:
+    app: stations
+  ports:
+    - protocol: TCP
+      port: 5001
+      targetPort: 5001

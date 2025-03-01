@@ -31,12 +31,29 @@ export type AuthRole =
   | 'ADMIN'
   | 'CUSTOMER';
 
+export type CreateStationInput = {
+  name: Scalars['String']['input'];
+  position: Vec2dInput;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  createStation: Station;
+  deleteStation: Station;
   login: Auth;
   logout: Scalars['Boolean']['output'];
   registerAdmin: Auth;
   registerCustomer: Auth;
+};
+
+
+export type MutationcreateStationArgs = {
+  input: CreateStationInput;
+};
+
+
+export type MutationdeleteStationArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -60,6 +77,25 @@ export type MutationregisterCustomerArgs = {
 export type Query = {
   __typename?: 'Query';
   auth?: Maybe<Auth>;
+  stations: Array<Station>;
+};
+
+export type Station = {
+  __typename?: 'Station';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  position: Vec2d;
+};
+
+export type Vec2d = {
+  __typename?: 'Vec2d';
+  x: Scalars['Float']['output'];
+  y: Scalars['Float']['output'];
+};
+
+export type Vec2dInput = {
+  x: Scalars['Float']['input'];
+  y: Scalars['Float']['input'];
 };
 
 
@@ -137,9 +173,14 @@ export type ResolversTypes = {
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   AuthRole: ResolverTypeWrapper<'ADMIN' | 'CUSTOMER'>;
+  CreateStationInput: CreateStationInput;
   Mutation: ResolverTypeWrapper<{}>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Query: ResolverTypeWrapper<{}>;
+  Station: ResolverTypeWrapper<Station>;
+  Vec2d: ResolverTypeWrapper<Vec2d>;
+  Float: ResolverTypeWrapper<Scalars['Float']['output']>;
+  Vec2dInput: Vec2dInput;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -147,9 +188,14 @@ export type ResolversParentTypes = {
   Auth: Auth;
   ID: Scalars['ID']['output'];
   String: Scalars['String']['output'];
+  CreateStationInput: CreateStationInput;
   Mutation: {};
   Boolean: Scalars['Boolean']['output'];
   Query: {};
+  Station: Station;
+  Vec2d: Vec2d;
+  Float: Scalars['Float']['output'];
+  Vec2dInput: Vec2dInput;
 };
 
 export type loggedInDirectiveArgs = { };
@@ -171,6 +217,8 @@ export type AuthResolvers<ContextType = ResolverContext, ParentType extends Reso
 export type AuthRoleResolvers = EnumResolverSignature<{ ADMIN?: any, CUSTOMER?: any }, ResolversTypes['AuthRole']>;
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  createStation?: Resolver<ResolversTypes['Station'], ParentType, ContextType, RequireFields<MutationcreateStationArgs, 'input'>>;
+  deleteStation?: Resolver<ResolversTypes['Station'], ParentType, ContextType, RequireFields<MutationdeleteStationArgs, 'id'>>;
   login?: Resolver<ResolversTypes['Auth'], ParentType, ContextType, RequireFields<MutationloginArgs, 'password' | 'username'>>;
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   registerAdmin?: Resolver<ResolversTypes['Auth'], ParentType, ContextType, RequireFields<MutationregisterAdminArgs, 'password' | 'username'>>;
@@ -179,6 +227,20 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
 
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   auth?: Resolver<Maybe<ResolversTypes['Auth']>, ParentType, ContextType>;
+  stations?: Resolver<Array<ResolversTypes['Station']>, ParentType, ContextType>;
+};
+
+export type StationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Station'] = ResolversParentTypes['Station']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  position?: Resolver<ResolversTypes['Vec2d'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type Vec2dResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Vec2d'] = ResolversParentTypes['Vec2d']> = {
+  x?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  y?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type Resolvers<ContextType = ResolverContext> = {
@@ -186,6 +248,8 @@ export type Resolvers<ContextType = ResolverContext> = {
   AuthRole?: AuthRoleResolvers;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  Station?: StationResolvers<ContextType>;
+  Vec2d?: Vec2dResolvers<ContextType>;
 };
 
 export type DirectiveResolvers<ContextType = ResolverContext> = {

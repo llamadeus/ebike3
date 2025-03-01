@@ -8,6 +8,7 @@ import (
 type Kafka interface {
 	Producer() Producer
 	NewConsumer(topic string, groupID string) (Consumer, error)
+	StartProcessor(topic string, groupID string, processor *EventsProcessor) (Consumer, error)
 	Close() error
 }
 

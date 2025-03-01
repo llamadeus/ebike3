@@ -3,3 +3,13 @@ type Mutation
 
 directive @loggedIn on FIELD_DEFINITION
 directive @notLoggedIn on FIELD_DEFINITION
+
+type Vec2d {
+  x: Float!
+  y: Float!
+}
+
+input Vec2dInput {
+  x: Float!
+  y: Float!
+}

@@ -4,7 +4,8 @@ import { Json } from "~/infrastructure/types/json";
 
 
 type Service =
-  | "auth";
+  | "auth"
+  | "stations";
 
 type RequestHeaders = {
   "X-Request-ID": string,
@@ -18,7 +19,7 @@ interface GetOptions<TOutput extends z.ZodTypeAny> {
 }
 
 interface PostOptions<TOutput extends z.ZodTypeAny> {
-  endpoint: `POST /${string}`;
+  endpoint: `POST /${string}` | `PUT /${string}` | `PATCH /${string}` | `DELETE /${string}`;
   headers: RequestHeaders;
   input?: Json;
   output: TOutput;
@@ -30,6 +31,7 @@ type Options<TOutput extends z.ZodTypeAny> =
 
 const SERVICE_MAP: Record<Service, string> = {
   auth: "http://auth-service:5001",
+  stations: "http://stations-service:5001",
 };
 
 export async function invokeService<TOutput extends z.ZodTypeAny>(
@@ -48,14 +50,14 @@ export async function invokeService<TOutput extends z.ZodTypeAny>(
       ...options.headers,
       "Content-Type": "application/json",
     },
-    body: method === "POST" && "input" in options
+    body: method !== "GET" && "input" in options
       ? JSON.stringify(options.input)
       : undefined,
   });
 
   let data: Json;
   try {
-    data = await response.json();
+    data = await response.clone().json();
   }
   catch {
     const text = await response.text();

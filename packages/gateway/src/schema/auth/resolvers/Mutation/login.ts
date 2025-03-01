@@ -4,7 +4,7 @@ import { invokeService } from "~/infrastructure/service";
 import type { MutationResolvers } from "~/schema/types.generated";
 
 
-export const login: NonNullable<MutationResolvers['login']> = async (_parent, _arg, _ctx) => {
+export const login: NonNullable<MutationResolvers["login"]> = async (_parent, _arg, _ctx) => {
   if (_ctx.session !== null) {
     throw new GraphQLError("Authenticated");
   }

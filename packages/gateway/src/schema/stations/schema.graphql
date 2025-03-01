@@ -1,0 +1,21 @@
+extend type Query {
+  # Admin
+  stations: [Station!]!
+}
+
+extend type Mutation {
+  # Admin
+  createStation(input: CreateStationInput!): Station!
+  deleteStation(id: ID!): Station!
+}
+
+type Station {
+  id: ID!
+  name: String!
+  position: Vec2d!
+}
+
+input CreateStationInput {
+  name: String!
+  position: Vec2dInput!
+}

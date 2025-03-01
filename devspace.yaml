@@ -34,6 +34,10 @@ images:
     image: ebike3/auth:latest
     dockerfile: packages/auth/Dockerfile.dev
     context: packages/auth/
+  stations:
+    image: ebike3/stations:latest
+    dockerfile: packages/stations/Dockerfile.dev
+    context: packages/stations/
 
 # This is a list of `deployments` that DevSpace can create for this project
 deployments:
@@ -54,6 +58,12 @@ deployments:
       manifests:
         - manifests/auth-postgres.yaml
         - manifests/auth.yaml
+  stations:
+    kubectl:
+      manifests:
+        - manifests/stations-mongo.yaml
+        - manifests/stations-postgres.yaml
+        - manifests/stations.yaml
 
 # This is a list of `dev` containers that are based on the containers created by your deployments
 dev:
@@ -83,6 +93,12 @@ dev:
     imageSelector: ebike3/auth:latest
     sync:
       - path: ./packages/auth:/app
+        disableDownload: true
+
+  stations:
+    imageSelector: ebike3/stations:latest
+    sync:
+      - path: ./packages/stations:/app
         disableDownload: true
 
 # Use the `commands` section to define repeatable dev workflows for this project

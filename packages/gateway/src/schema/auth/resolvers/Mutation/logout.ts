@@ -4,7 +4,7 @@ import { invokeService } from "~/infrastructure/service";
 import type { MutationResolvers } from "~/schema/types.generated";
 
 
-export const logout: NonNullable<MutationResolvers['logout']> = async (_parent, _arg, _ctx) => {
+export const logout: NonNullable<MutationResolvers["logout"]> = async (_parent, _arg, _ctx) => {
   if (_ctx.session === null) {
     throw new GraphQLError("Not authenticated");
   }

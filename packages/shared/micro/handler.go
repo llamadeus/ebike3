@@ -37,7 +37,12 @@ func MakeHandler[TParams any, TInput any, TOutput any](handler Handler[TParams, 
 		if err != nil {
 			var validationError *ValidationError
 			if errors.As(err, &validationError) {
-				slog.Error("validation error", "error", err)
+				var problems []string
+				for _, entry := range validationError.Entries() {
+					problems = append(problems, fmt.Sprintf("%s: %s", entry.Field, entry.Rule))
+				}
+
+				slog.Error("validation error", "error", validationError, "problems", problems)
 
 				sendError(writer, http.StatusUnprocessableEntity, "validation failed")
 				return

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: stations-postgres-statefulset
+  labels:
+    app: stations
+spec:
+  serviceName: stations-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stations
+  template:
+    metadata:
+      labels:
+        app: stations
+    spec:
+      containers:
+        - name: stations-postgres-container
+          image: postgres:17.2-alpine3.21
+          env:
+            - name: POSTGRES_DB
+              value: "stations"
+            - name: POSTGRES_USER
+              value: "ebike3"
+            - name: POSTGRES_PASSWORD
+              value: "ebike3"
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stations-postgres-service
+  labels:
+    app: stations
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: stations
