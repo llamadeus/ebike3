@@ -74,9 +74,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	db.MustExec("TRUNCATE TABLE users CASCADE")
-	db.MustExec("TRUNCATE TABLE sessions CASCADE")
-
 	// Configure kafka
 	kafka, err := micro.NewKafka(config.Get().KafkaBroker)
 	if err != nil {
