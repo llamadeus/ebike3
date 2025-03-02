@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customers-pod
+  labels:
+    app: customers
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customers
+  template:
+    metadata:
+      labels:
+        app: customers
+    spec:
+      containers:
+        - name: customers-container
+          image: ebike3/customers:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5001
+          env:
+            - name: SERVICE_ID
+              value: "3"
+            - name: MONGO_URI
+              value: mongodb://customers-mongo-service:27017
+            - name: MONGO_DATABASE
+              value: customers
+            - name: MONGO_COLLECTION
+              value: customers
+            - name: KAFKA_BROKER
+              value: kafka-service:9092
+            - name: KAFKA_GROUP_ID
+              value: customers
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customers-service
+  labels:
+    app: customers
+spec:
+  selector:
+    app: customers
+  ports:
+    - protocol: TCP
+      port: 5001
+      targetPort: 5001

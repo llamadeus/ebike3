@@ -41,6 +41,25 @@ export type CreateVehicleInput = {
   type: VehicleType;
 };
 
+export type Customer = {
+  __typename?: 'Customer';
+  activeRental?: Maybe<CustomerRental>;
+  creditBalance: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  lastLogin?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  position: Vec2d;
+};
+
+export type CustomerRental = {
+  __typename?: 'CustomerRental';
+  customerId: Scalars['ID']['output'];
+  id: Scalars['ID']['output'];
+  start: Scalars['String']['output'];
+  vehicleId: Scalars['ID']['output'];
+  vehicleType: VehicleType;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createStation: Station;
@@ -51,6 +70,7 @@ export type Mutation = {
   logout: Scalars['Boolean']['output'];
   registerAdmin: Auth;
   registerCustomer: Auth;
+  updateCustomerPosition: Scalars['Boolean']['output'];
 };
 
 
@@ -91,10 +111,16 @@ export type MutationregisterCustomerArgs = {
   username: Scalars['String']['input'];
 };
 
+
+export type MutationupdateCustomerPositionArgs = {
+  position: Vec2dInput;
+};
+
 export type Query = {
   __typename?: 'Query';
   auth?: Maybe<Auth>;
   availableVehicles: Array<Vehicle>;
+  customers: Array<Customer>;
   stations: Array<Station>;
   vehicles: Array<Vehicle>;
 };
@@ -209,6 +235,9 @@ export type ResolversTypes = {
   AuthRole: ResolverTypeWrapper<'ADMIN' | 'CUSTOMER'>;
   CreateStationInput: CreateStationInput;
   CreateVehicleInput: CreateVehicleInput;
+  Customer: ResolverTypeWrapper<Omit<Customer, 'activeRental'> & { activeRental?: Maybe<ResolversTypes['CustomerRental']> }>;
+  Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  CustomerRental: ResolverTypeWrapper<Omit<CustomerRental, 'vehicleType'> & { vehicleType: ResolversTypes['VehicleType'] }>;
   Mutation: ResolverTypeWrapper<{}>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Query: ResolverTypeWrapper<{}>;
@@ -227,6 +256,9 @@ export type ResolversParentTypes = {
   String: Scalars['String']['output'];
   CreateStationInput: CreateStationInput;
   CreateVehicleInput: CreateVehicleInput;
+  Customer: Omit<Customer, 'activeRental'> & { activeRental?: Maybe<ResolversParentTypes['CustomerRental']> };
+  Int: Scalars['Int']['output'];
+  CustomerRental: CustomerRental;
   Mutation: {};
   Boolean: Scalars['Boolean']['output'];
   Query: {};
@@ -255,6 +287,25 @@ export type AuthResolvers<ContextType = ResolverContext, ParentType extends Reso
 
 export type AuthRoleResolvers = EnumResolverSignature<{ ADMIN?: any, CUSTOMER?: any }, ResolversTypes['AuthRole']>;
 
+export type CustomerResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Customer'] = ResolversParentTypes['Customer']> = {
+  activeRental?: Resolver<Maybe<ResolversTypes['CustomerRental']>, ParentType, ContextType>;
+  creditBalance?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastLogin?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  position?: Resolver<ResolversTypes['Vec2d'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type CustomerRentalResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CustomerRental'] = ResolversParentTypes['CustomerRental']> = {
+  customerId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  start?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  vehicleId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  vehicleType?: Resolver<ResolversTypes['VehicleType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createStation?: Resolver<ResolversTypes['Station'], ParentType, ContextType, RequireFields<MutationcreateStationArgs, 'input'>>;
   createVehicle?: Resolver<ResolversTypes['Vehicle'], ParentType, ContextType, RequireFields<MutationcreateVehicleArgs, 'input'>>;
@@ -264,11 +315,13 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   registerAdmin?: Resolver<ResolversTypes['Auth'], ParentType, ContextType, RequireFields<MutationregisterAdminArgs, 'password' | 'username'>>;
   registerCustomer?: Resolver<ResolversTypes['Auth'], ParentType, ContextType, RequireFields<MutationregisterCustomerArgs, 'password' | 'username'>>;
+  updateCustomerPosition?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationupdateCustomerPositionArgs, 'position'>>;
 };
 
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   auth?: Resolver<Maybe<ResolversTypes['Auth']>, ParentType, ContextType>;
   availableVehicles?: Resolver<Array<ResolversTypes['Vehicle']>, ParentType, ContextType>;
+  customers?: Resolver<Array<ResolversTypes['Customer']>, ParentType, ContextType>;
   stations?: Resolver<Array<ResolversTypes['Station']>, ParentType, ContextType>;
   vehicles?: Resolver<Array<ResolversTypes['Vehicle']>, ParentType, ContextType>;
 };
@@ -301,6 +354,8 @@ export type VehicleTypeResolvers = EnumResolverSignature<{ ABIKE?: any, BIKE?: a
 export type Resolvers<ContextType = ResolverContext> = {
   Auth?: AuthResolvers<ContextType>;
   AuthRole?: AuthRoleResolvers;
+  Customer?: CustomerResolvers<ContextType>;
+  CustomerRental?: CustomerRentalResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Station?: StationResolvers<ContextType>;

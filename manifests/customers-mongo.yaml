@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: customers-mongo-statefulset
+  labels:
+    app: customers
+spec:
+  serviceName: customers-mongo
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customers
+  template:
+    metadata:
+      labels:
+        app: customers
+    spec:
+      containers:
+        - name: customers-mongo-container
+          image: mongo:6.0
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongo-data
+              mountPath: /data/db
+  volumeClaimTemplates:
+    - metadata:
+        name: mongo-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customers-mongo-service
+  labels:
+    app: customers
+spec:
+  ports:
+    - port: 27017
+      targetPort: 27017
+  selector:
+    app: customers

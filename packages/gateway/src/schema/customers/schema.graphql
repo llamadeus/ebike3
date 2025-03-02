@@ -1,0 +1,26 @@
+extend type Query {
+  # Admin
+  customers: [Customer!]!
+}
+
+extend type Mutation {
+  # Customer
+  updateCustomerPosition(position: Vec2dInput!): Boolean!
+}
+
+type Customer {
+  id: ID!
+  name: String!
+  position: Vec2d!
+  creditBalance: Int!
+  activeRental: CustomerRental
+  lastLogin: String
+}
+
+type CustomerRental {
+  id: ID!
+  vehicleId: ID!
+  customerId: ID!
+  vehicleType: VehicleType!
+  start: String!
+}
