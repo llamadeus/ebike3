@@ -1,4 +1,4 @@
-import type { VehicleResolvers } from "./../../types.generated";
+import type { VehicleResolvers } from "~/schema/types.generated";
 
 
 export const Vehicle: VehicleResolvers = {

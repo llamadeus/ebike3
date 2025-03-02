@@ -1,6 +1,6 @@
-import { vehicleSchema } from "~/adapter/in/dto/vehicle.ts";
+import { vehicleSchema } from "~/adapter/in/dto/vehicle";
 import { invokeService } from "~/infrastructure/service";
-import type { MutationResolvers } from "./../../../types.generated";
+import type { MutationResolvers } from "~/schema/types.generated";
 
 
 export const deleteVehicle: NonNullable<MutationResolvers["deleteVehicle"]> = async (_parent, _arg, _ctx) => {

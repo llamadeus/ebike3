@@ -1,5 +1,5 @@
 import { GraphQLError } from "graphql/error";
-import { vehicleSchema } from "~/adapter/in/dto/vehicle.ts";
+import { vehicleSchema } from "~/adapter/in/dto/vehicle";
 import { invokeService } from "~/infrastructure/service";
 import type { MutationResolvers } from "~/schema/types.generated";
 

@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql/error";
 import { z } from "zod";
-import { vehicleSchema } from "~/adapter/in/dto/vehicle.ts";
+import { vehicleSchema } from "~/adapter/in/dto/vehicle";
 import { invokeService } from "~/infrastructure/service";
 import type { QueryResolvers } from "~/schema/types.generated";
 
