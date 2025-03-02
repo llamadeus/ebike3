@@ -145,6 +145,8 @@ func sendJSON[T any](writer http.ResponseWriter, statusCode int, data T) {
 		return
 	}
 
+	slog.Debug("sending response", "status", statusCode, "data", string(payload))
+
 	writer.Header().Set("Content-Type", "application/json")
 	writer.WriteHeader(statusCode)
 	_, err = writer.Write(payload)
