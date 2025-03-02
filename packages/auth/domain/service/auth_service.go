@@ -79,12 +79,22 @@ func (s *AuthService) RegisterUser(username string, password string, role model.
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to create user with session: %v", err))
 	}
 
-	event := micro.NewEvent(events.AuthUserRegisteredEventType, UserRegisteredEvent{
+	registeredEvent := micro.NewEvent(events.AuthUserRegisteredEventType, UserRegisteredEvent{
 		ID:       dto.IDToDTO(auth.User.ID),
 		Username: auth.User.Username,
 		Role:     dto.RoleToDTO(auth.User.Role),
 	})
-	err = s.kafka.Producer().Send(events.AuthTopic, event.Payload.ID, event)
+	err = s.kafka.Producer().Send(events.AuthTopic, registeredEvent.Payload.ID, registeredEvent)
+	if err != nil {
+		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to send kafka event: %v", err))
+	}
+
+	loggedInEvent := micro.NewEvent(events.AuthUserLoggedInEventType, events.UserLoggedInEvent{
+		ID:        dto.IDToDTO(auth.User.ID),
+		Username:  auth.User.Username,
+		Timestamp: auth.User.LastLogin.Time,
+	})
+	err = s.kafka.Producer().Send(events.AuthTopic, loggedInEvent.Payload.ID, loggedInEvent)
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to send kafka event: %v", err))
 	}
@@ -110,6 +120,16 @@ func (s *AuthService) LoginUser(username string, password string) (*model.Auth, 
 	session, err := s.repository.CreateSessionAndUpdateLastLogin(user)
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to create session: %v", err))
+	}
+
+	event := micro.NewEvent(events.AuthUserLoggedInEventType, events.UserLoggedInEvent{
+		ID:        dto.IDToDTO(user.ID),
+		Username:  user.Username,
+		Timestamp: user.LastLogin.Time,
+	})
+	err = s.kafka.Producer().Send(events.AuthTopic, event.Payload.ID, event)
+	if err != nil {
+		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to send kafka event: %v", err))
 	}
 
 	return &model.Auth{
