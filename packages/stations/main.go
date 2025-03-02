@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/llamadeus/ebike3/packages/stations/adapter/in"
 	"github.com/llamadeus/ebike3/packages/stations/adapter/out/persistence"
 	"github.com/llamadeus/ebike3/packages/stations/domain/events"
@@ -67,6 +68,7 @@ func main() {
 		slog.Error("failed to open mongo database", "error", err)
 		os.Exit(1)
 	}
+	defer mongo.Disconnect(context.Background())
 
 	// Configure kafka
 	kafka, err := micro.NewKafka(config.Get().KafkaBroker)
