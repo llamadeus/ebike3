@@ -119,7 +119,7 @@ func (s *AuthService) LoginUser(username string, password string) (*model.Auth, 
 	event := micro.NewEvent(events.AuthUserLoggedInEventType, events.UserLoggedInEvent{
 		ID:        dto.IDToDTO(user.ID),
 		Username:  user.Username,
-		Timestamp: user.LastLogin.Time,
+		Timestamp: session.CreatedAt,
 	})
 	err = s.kafka.Producer().Send(events.AuthTopic, event.Payload.ID, event)
 	if err != nil {
