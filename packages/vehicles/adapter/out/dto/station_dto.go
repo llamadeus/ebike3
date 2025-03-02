@@ -7,14 +7,14 @@ import (
 )
 
 type VehicleDTO struct {
-	ID        string  `json:"id,omitempty"`
-	Type      string  `json:"type,omitempty"`
-	PositionX float64 `json:"positionX,omitempty"`
-	PositionY float64 `json:"positionY,omitempty"`
-	Battery   float64 `json:"battery,omitempty"`
-	Available bool    `json:"available,omitempty"`
-	CreatedAt string  `json:"createdAt,omitempty"`
-	UpdatedAt string  `json:"updatedAt,omitempty"`
+	ID        string  `json:"id"`
+	Type      string  `json:"type"`
+	PositionX float64 `json:"positionX"`
+	PositionY float64 `json:"positionY"`
+	Battery   float64 `json:"battery"`
+	Available bool    `json:"available"`
+	CreatedAt string  `json:"createdAt"`
+	UpdatedAt string  `json:"updatedAt"`
 }
 
 func VehicleToDTO(vehicle *model.Vehicle) *VehicleDTO {

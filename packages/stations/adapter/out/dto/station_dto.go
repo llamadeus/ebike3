@@ -6,12 +6,12 @@ import (
 )
 
 type StationDTO struct {
-	ID        string  `json:"id,omitempty"`
-	Name      string  `json:"name,omitempty"`
-	PositionX float64 `json:"positionX,omitempty"`
-	PositionY float64 `json:"positionY,omitempty"`
-	CreatedAt string  `json:"createdAt,omitempty"`
-	UpdatedAt string  `json:"updatedAt,omitempty"`
+	ID        string  `json:"id"`
+	Name      string  `json:"name"`
+	PositionX float64 `json:"positionX"`
+	PositionY float64 `json:"positionY"`
+	CreatedAt string  `json:"createdAt"`
+	UpdatedAt string  `json:"updatedAt"`
 }
 
 func StationToDTO(station *model.Station) *StationDTO {
