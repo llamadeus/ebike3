@@ -17,12 +17,6 @@ type StationService struct {
 	viewRepository out.StationViewRepository
 }
 
-type UserRegisteredEvent struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	Role     string `json:"role"`
-}
-
 // Ensure that StationService implements the StationService interface.
 var _ in.StationService = (*StationService)(nil)
 

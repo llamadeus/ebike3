@@ -17,12 +17,6 @@ type VehicleService struct {
 	viewRepository out.VehicleViewRepository
 }
 
-type UserRegisteredEvent struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	Role     string `json:"role"`
-}
-
 // Ensure that VehicleService implements the VehicleService interface.
 var _ in.VehicleService = (*VehicleService)(nil)
 
