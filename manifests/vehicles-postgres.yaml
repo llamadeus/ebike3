@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vehicles-postgres-statefulset
+  labels:
+    app: vehicles
+spec:
+  serviceName: vehicles-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vehicles
+  template:
+    metadata:
+      labels:
+        app: vehicles
+    spec:
+      containers:
+        - name: vehicles-postgres-container
+          image: postgres:17.2-alpine3.21
+          env:
+            - name: POSTGRES_DB
+              value: "vehicles"
+            - name: POSTGRES_USER
+              value: "ebike3"
+            - name: POSTGRES_PASSWORD
+              value: "ebike3"
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vehicles-postgres-service
+  labels:
+    app: vehicles
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: vehicles

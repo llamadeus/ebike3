@@ -1,0 +1,33 @@
+extend type Query {
+  # Admin
+  vehicles: [Vehicle!]!
+
+  # Customer
+  availableVehicles: [Vehicle!]!
+}
+
+extend type Mutation {
+  # Admin
+  createVehicle(input: CreateVehicleInput!): Vehicle!
+  deleteVehicle(id: ID!): Vehicle!
+}
+
+type Vehicle {
+  id: ID!
+  type: VehicleType!
+  position: Vec2d!
+  battery: Float!
+  available: Boolean!
+  createdAt: String!
+}
+
+enum VehicleType {
+  BIKE
+  EBIKE
+  ABIKE
+}
+
+input CreateVehicleInput {
+  type: VehicleType!
+  position: Vec2dInput!
+}

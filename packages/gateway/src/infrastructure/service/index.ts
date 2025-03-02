@@ -5,7 +5,8 @@ import { Json } from "~/infrastructure/types/json";
 
 type Service =
   | "auth"
-  | "stations";
+  | "stations"
+  | "vehicles";
 
 type RequestHeaders = {
   "X-Request-ID": string,
@@ -32,6 +33,7 @@ type Options<TOutput extends z.ZodTypeAny> =
 const SERVICE_MAP: Record<Service, string> = {
   auth: "http://auth-service:5001",
   stations: "http://stations-service:5001",
+  vehicles: "http://vehicles-service:5001",
 };
 
 export async function invokeService<TOutput extends z.ZodTypeAny>(

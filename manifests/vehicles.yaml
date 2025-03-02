@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vehicles-pod
+  labels:
+    app: vehicles
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vehicles
+  template:
+    metadata:
+      labels:
+        app: vehicles
+    spec:
+      containers:
+        - name: vehicles-container
+          image: ebike3/vehicles:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5001
+          env:
+            - name: SERVICE_ID
+              value: "3"
+            - name: DB_HOST
+              value: vehicles-postgres-service
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: ebike3
+            - name: DB_PASSWORD
+              value: ebike3
+            - name: DB_DATABASE
+              value: vehicles
+            - name: MONGO_URI
+              value: mongodb://vehicles-mongo-service:27017
+            - name: MONGO_DATABASE
+              value: vehicles
+            - name: MONGO_COLLECTION
+              value: vehicles
+            - name: KAFKA_BROKER
+              value: kafka-service:9092
+            - name: KAFKA_GROUP_ID
+              value: vehicles
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vehicles-service
+  labels:
+    app: vehicles
+spec:
+  selector:
+    app: vehicles
+  ports:
+    - protocol: TCP
+      port: 5001
+      targetPort: 5001

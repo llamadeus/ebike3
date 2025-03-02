@@ -36,10 +36,17 @@ export type CreateStationInput = {
   position: Vec2dInput;
 };
 
+export type CreateVehicleInput = {
+  position: Vec2dInput;
+  type: VehicleType;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createStation: Station;
+  createVehicle: Vehicle;
   deleteStation: Station;
+  deleteVehicle: Vehicle;
   login: Auth;
   logout: Scalars['Boolean']['output'];
   registerAdmin: Auth;
@@ -52,7 +59,17 @@ export type MutationcreateStationArgs = {
 };
 
 
+export type MutationcreateVehicleArgs = {
+  input: CreateVehicleInput;
+};
+
+
 export type MutationdeleteStationArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationdeleteVehicleArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -77,7 +94,9 @@ export type MutationregisterCustomerArgs = {
 export type Query = {
   __typename?: 'Query';
   auth?: Maybe<Auth>;
+  availableVehicles: Array<Vehicle>;
   stations: Array<Station>;
+  vehicles: Array<Vehicle>;
 };
 
 export type Station = {
@@ -97,6 +116,21 @@ export type Vec2dInput = {
   x: Scalars['Float']['input'];
   y: Scalars['Float']['input'];
 };
+
+export type Vehicle = {
+  __typename?: 'Vehicle';
+  available: Scalars['Boolean']['output'];
+  battery: Scalars['Float']['output'];
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  position: Vec2d;
+  type: VehicleType;
+};
+
+export type VehicleType =
+  | 'ABIKE'
+  | 'BIKE'
+  | 'EBIKE';
 
 
 
@@ -174,6 +208,7 @@ export type ResolversTypes = {
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   AuthRole: ResolverTypeWrapper<'ADMIN' | 'CUSTOMER'>;
   CreateStationInput: CreateStationInput;
+  CreateVehicleInput: CreateVehicleInput;
   Mutation: ResolverTypeWrapper<{}>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Query: ResolverTypeWrapper<{}>;
@@ -181,6 +216,8 @@ export type ResolversTypes = {
   Vec2d: ResolverTypeWrapper<Vec2d>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   Vec2dInput: Vec2dInput;
+  Vehicle: ResolverTypeWrapper<Omit<Vehicle, 'type'> & { type: ResolversTypes['VehicleType'] }>;
+  VehicleType: ResolverTypeWrapper<'BIKE' | 'EBIKE' | 'ABIKE'>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -189,6 +226,7 @@ export type ResolversParentTypes = {
   ID: Scalars['ID']['output'];
   String: Scalars['String']['output'];
   CreateStationInput: CreateStationInput;
+  CreateVehicleInput: CreateVehicleInput;
   Mutation: {};
   Boolean: Scalars['Boolean']['output'];
   Query: {};
@@ -196,6 +234,7 @@ export type ResolversParentTypes = {
   Vec2d: Vec2d;
   Float: Scalars['Float']['output'];
   Vec2dInput: Vec2dInput;
+  Vehicle: Vehicle;
 };
 
 export type loggedInDirectiveArgs = { };
@@ -218,7 +257,9 @@ export type AuthRoleResolvers = EnumResolverSignature<{ ADMIN?: any, CUSTOMER?: 
 
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createStation?: Resolver<ResolversTypes['Station'], ParentType, ContextType, RequireFields<MutationcreateStationArgs, 'input'>>;
+  createVehicle?: Resolver<ResolversTypes['Vehicle'], ParentType, ContextType, RequireFields<MutationcreateVehicleArgs, 'input'>>;
   deleteStation?: Resolver<ResolversTypes['Station'], ParentType, ContextType, RequireFields<MutationdeleteStationArgs, 'id'>>;
+  deleteVehicle?: Resolver<ResolversTypes['Vehicle'], ParentType, ContextType, RequireFields<MutationdeleteVehicleArgs, 'id'>>;
   login?: Resolver<ResolversTypes['Auth'], ParentType, ContextType, RequireFields<MutationloginArgs, 'password' | 'username'>>;
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   registerAdmin?: Resolver<ResolversTypes['Auth'], ParentType, ContextType, RequireFields<MutationregisterAdminArgs, 'password' | 'username'>>;
@@ -227,7 +268,9 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
 
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   auth?: Resolver<Maybe<ResolversTypes['Auth']>, ParentType, ContextType>;
+  availableVehicles?: Resolver<Array<ResolversTypes['Vehicle']>, ParentType, ContextType>;
   stations?: Resolver<Array<ResolversTypes['Station']>, ParentType, ContextType>;
+  vehicles?: Resolver<Array<ResolversTypes['Vehicle']>, ParentType, ContextType>;
 };
 
 export type StationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Station'] = ResolversParentTypes['Station']> = {
@@ -243,6 +286,18 @@ export type Vec2dResolvers<ContextType = ResolverContext, ParentType extends Res
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type VehicleResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Vehicle'] = ResolversParentTypes['Vehicle']> = {
+  available?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  battery?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  position?: Resolver<ResolversTypes['Vec2d'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['VehicleType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type VehicleTypeResolvers = EnumResolverSignature<{ ABIKE?: any, BIKE?: any, EBIKE?: any }, ResolversTypes['VehicleType']>;
+
 export type Resolvers<ContextType = ResolverContext> = {
   Auth?: AuthResolvers<ContextType>;
   AuthRole?: AuthRoleResolvers;
@@ -250,6 +305,8 @@ export type Resolvers<ContextType = ResolverContext> = {
   Query?: QueryResolvers<ContextType>;
   Station?: StationResolvers<ContextType>;
   Vec2d?: Vec2dResolvers<ContextType>;
+  Vehicle?: VehicleResolvers<ContextType>;
+  VehicleType?: VehicleTypeResolvers;
 };
 
 export type DirectiveResolvers<ContextType = ResolverContext> = {
