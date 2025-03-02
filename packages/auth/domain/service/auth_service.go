@@ -20,12 +20,6 @@ type AuthService struct {
 	repository out.AuthRepository
 }
 
-type UserRegisteredEvent struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-	Role     string `json:"role"`
-}
-
 // Ensure that AuthService implements the AuthService interface.
 var _ in.AuthService = (*AuthService)(nil)
 
@@ -79,7 +73,7 @@ func (s *AuthService) RegisterUser(username string, password string, role model.
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to create user with session: %v", err))
 	}
 
-	registeredEvent := micro.NewEvent(events.AuthUserRegisteredEventType, UserRegisteredEvent{
+	registeredEvent := micro.NewEvent(events.AuthUserRegisteredEventType, events.UserRegisteredEvent{
 		ID:       dto.IDToDTO(auth.User.ID),
 		Username: auth.User.Username,
 		Role:     dto.RoleToDTO(auth.User.Role),
