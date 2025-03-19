@@ -66,9 +66,10 @@ func (s *AccountingService) UpdatePayment(id uint64, status model.PaymentStatus)
 	}
 
 	event := micro.NewEvent(events.AccountingPaymentUpdatedEventType, events.PaymentUpdatedEvent{
-		ID:     dto.IDToDTO(updated.ID),
-		Amount: updated.Amount,
-		Status: dto.StatusToDTO(updated.Status),
+		ID:         dto.IDToDTO(updated.ID),
+		CustomerID: dto.IDToDTO(updated.CustomerID),
+		Amount:     updated.Amount,
+		Status:     dto.StatusToDTO(updated.Status),
 	})
 	err = s.kafka.Producer().Send(events.AccountingTopic, event.Payload.ID, event)
 	if err != nil {
