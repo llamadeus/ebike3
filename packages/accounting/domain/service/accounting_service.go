@@ -56,6 +56,10 @@ func (s *AccountingService) UpdatePayment(id uint64, status model.PaymentStatus)
 		return nil, micro.NewNotFoundError(fmt.Sprintf("payment with id %d not found", id))
 	}
 
+	if payment.Status == model.PaymentStatusConfirmed {
+		return nil, micro.NewBadRequestError("payment already confirmed")
+	}
+
 	updated, err := s.paymentRepository.Update(payment.ID, status)
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to update payment: %v", err))
