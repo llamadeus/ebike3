@@ -53,7 +53,7 @@ func (r *PaymentRepository) GetByCustomerID(customerID uint64) ([]*model.Payment
 	return payments, nil
 }
 
-func (r *PaymentRepository) Create(customerID uint64, amount int) (*model.Payment, error) {
+func (r *PaymentRepository) Create(customerID uint64, amount int32) (*model.Payment, error) {
 	id, err := r.snowflake.Generate()
 	if err != nil {
 		return nil, err

@@ -11,14 +11,14 @@ const (
 type PaymentCreatedEvent struct {
 	ID         string `json:"id"`
 	CustomerID string `json:"customerId"`
-	Amount     int    `json:"amount"`
+	Amount     int32  `json:"amount"`
 	Status     string `json:"status"`
 }
 
 type PaymentUpdatedEvent struct {
 	ID         string `json:"id"`
 	CustomerID string `json:"customerId"`
-	Amount     int    `json:"amount"`
+	Amount     int32  `json:"amount"`
 	Status     string `json:"status"`
 }
 
@@ -30,5 +30,5 @@ type ExpenseCreatedEvent struct {
 	ID         string `json:"id"`
 	CustomerID string `json:"customerId"`
 	RentalID   string `json:"rentalId"`
-	Amount     int    `json:"amount"`
+	Amount     int32  `json:"amount"`
 }

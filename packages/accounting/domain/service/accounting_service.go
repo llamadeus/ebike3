@@ -30,7 +30,7 @@ func (s *AccountingService) GetPaymentsForCustomer(customerID uint64) ([]*model.
 	return s.paymentRepository.GetByCustomerID(customerID)
 }
 
-func (s *AccountingService) CreatePayment(customerID uint64, amount int) (*model.Payment, error) {
+func (s *AccountingService) CreatePayment(customerID uint64, amount int32) (*model.Payment, error) {
 	payment, err := s.paymentRepository.Create(customerID, amount)
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to create payment: %v", err))
@@ -109,7 +109,7 @@ func (s *AccountingService) GetExpensesForCustomer(customerID uint64) ([]*model.
 	return s.expenseRepository.GetByCustomerID(customerID)
 }
 
-func (s *AccountingService) CreateExpense(customerID uint64, rentalID uint64, amount int) (*model.Expense, error) {
+func (s *AccountingService) CreateExpense(customerID uint64, rentalID uint64, amount int32) (*model.Expense, error) {
 	expense, err := s.expenseRepository.Create(customerID, rentalID, amount)
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to create expense: %v", err))
@@ -129,7 +129,7 @@ func (s *AccountingService) CreateExpense(customerID uint64, rentalID uint64, am
 	return expense, nil
 }
 
-func (s *AccountingService) GetCreditBalanceForCustomer(customerID uint64) (int, error) {
+func (s *AccountingService) GetCreditBalanceForCustomer(customerID uint64) (int32, error) {
 	payments, err := s.paymentRepository.GetByCustomerID(customerID)
 	if err != nil {
 		return 0, micro.NewInternalServerError(fmt.Sprintf("failed to get payments: %v", err))
@@ -140,7 +140,7 @@ func (s *AccountingService) GetCreditBalanceForCustomer(customerID uint64) (int,
 		return 0, micro.NewInternalServerError(fmt.Sprintf("failed to get expenses: %v", err))
 	}
 
-	creditBalance := 0
+	creditBalance := int32(0)
 	for _, payment := range payments {
 		if payment.Status != model.PaymentStatusConfirmed {
 			continue

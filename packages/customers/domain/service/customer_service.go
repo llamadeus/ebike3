@@ -66,7 +66,7 @@ func (s *CustomerService) UpdateCustomerViewPosition(id uint64, positionX float6
 	return s.viewRepository.UpdateCustomerViewPosition(id, positionX, positionY)
 }
 
-func (s *CustomerService) UpdateCustomerViewCreditBalance(id uint64, creditBalance float64) error {
+func (s *CustomerService) UpdateCustomerViewCreditBalance(id uint64, creditBalance int32) error {
 	return s.viewRepository.UpdateCustomerViewCreditBalance(id, creditBalance)
 }
 

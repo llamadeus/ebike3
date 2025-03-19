@@ -14,13 +14,13 @@ type CustomerViewRepository interface {
 	GetCustomerByID(id uint64) (*model.CustomerView, error)
 
 	// CreateCustomer creates a new customer with the given name and position.
-	CreateCustomer(id uint64, name string, positionX float64, positionY float64, creditBalance float64) error
+	CreateCustomer(id uint64, name string, positionX float64, positionY float64, creditBalance int32) error
 
 	// UpdateCustomerViewPosition updates the customer position with the given id.
 	UpdateCustomerViewPosition(id uint64, positionX float64, positionY float64) error
 
 	// UpdateCustomerViewCreditBalance updates the customer credit with the given id.
-	UpdateCustomerViewCreditBalance(id uint64, creditBalance float64) error
+	UpdateCustomerViewCreditBalance(id uint64, creditBalance int32) error
 
 	// UpdateCustomerViewLastLogin updates the customer last login with the given id.
 	UpdateCustomerViewLastLogin(id uint64, lastLogin time.Time) error

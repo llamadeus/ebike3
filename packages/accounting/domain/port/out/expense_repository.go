@@ -7,5 +7,5 @@ type ExpenseRepository interface {
 
 	GetByCustomerID(customerID uint64) ([]*model.Expense, error)
 
-	Create(customerID uint64, rentalID uint64, amount int) (*model.Expense, error)
+	Create(customerID uint64, rentalID uint64, amount int32) (*model.Expense, error)
 }

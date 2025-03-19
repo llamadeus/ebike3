@@ -59,7 +59,7 @@ func (r *CustomerViewRepository) GetCustomerByID(id uint64) (*model.CustomerView
 	return &customer, nil
 }
 
-func (r *CustomerViewRepository) CreateCustomer(id uint64, name string, positionX float64, positionY float64, creditBalance float64) error {
+func (r *CustomerViewRepository) CreateCustomer(id uint64, name string, positionX float64, positionY float64, creditBalance int32) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -100,7 +100,7 @@ func (r *CustomerViewRepository) UpdateCustomerViewPosition(id uint64, positionX
 	return nil
 }
 
-func (r *CustomerViewRepository) UpdateCustomerViewCreditBalance(id uint64, creditBalance float64) error {
+func (r *CustomerViewRepository) UpdateCustomerViewCreditBalance(id uint64, creditBalance int32) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 

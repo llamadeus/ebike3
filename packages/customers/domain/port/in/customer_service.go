@@ -22,7 +22,7 @@ type CustomerService interface {
 	UpdateCustomerViewPosition(id uint64, positionX float64, positionY float64) error
 
 	// UpdateCustomerViewCreditBalance updates the customer credit with the given id.
-	UpdateCustomerViewCreditBalance(id uint64, creditBalance float64) error
+	UpdateCustomerViewCreditBalance(id uint64, creditBalance int32) error
 
 	// UpdateCustomerViewLastLogin updates the customer last login with the given id.
 	UpdateCustomerViewLastLogin(id uint64, lastLogin time.Time) error

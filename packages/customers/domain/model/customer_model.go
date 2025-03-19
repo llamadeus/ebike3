@@ -10,7 +10,7 @@ type CustomerView struct {
 	Name          string      `bson:"name,omitempty"`
 	PositionX     float64     `bson:"positionX,omitempty"`
 	PositionY     float64     `bson:"positionY,omitempty"`
-	CreditBalance float64     `bson:"creditBalance,omitempty"`
+	CreditBalance int32       `bson:"creditBalance,omitempty"`
 	ActiveRental  *RentalView `bson:"activeRental,omitempty"`
 	LastLogin     null.Time   `bson:"lastLogin,omitempty"`
 	CreatedAt     time.Time   `bson:"createdAt,omitempty"`

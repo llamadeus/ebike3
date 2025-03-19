@@ -5,7 +5,7 @@ import "time"
 type Payment struct {
 	ID         uint64        `db:"id"`
 	CustomerID uint64        `db:"customer_id"`
-	Amount     int           `db:"amount"`
+	Amount     int32         `db:"amount"`
 	Status     PaymentStatus `db:"status"`
 	CreatedAt  time.Time     `db:"created_at"`
 	UpdatedAt  time.Time     `db:"updated_at"`

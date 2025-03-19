@@ -53,7 +53,7 @@ func (r *ExpenseRepository) GetByCustomerID(customerID uint64) ([]*model.Expense
 	return expenses, nil
 }
 
-func (r *ExpenseRepository) Create(customerID uint64, rentalID uint64, amount int) (*model.Expense, error) {
+func (r *ExpenseRepository) Create(customerID uint64, rentalID uint64, amount int32) (*model.Expense, error) {
 	id, err := r.snowflake.Generate()
 	if err != nil {
 		return nil, err

@@ -9,7 +9,7 @@ type PaymentRepository interface {
 
 	GetByCustomerID(customerID uint64) ([]*model.Payment, error)
 
-	Create(customerID uint64, amount int) (*model.Payment, error)
+	Create(customerID uint64, amount int32) (*model.Payment, error)
 
 	Update(id uint64, status model.PaymentStatus) (*model.Payment, error)
 

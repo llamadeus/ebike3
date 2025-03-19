@@ -7,7 +7,7 @@ type AccountingService interface {
 
 	GetPaymentsForCustomer(customerID uint64) ([]*model.Payment, error)
 
-	CreatePayment(customerID uint64, amount int) (*model.Payment, error)
+	CreatePayment(customerID uint64, amount int32) (*model.Payment, error)
 
 	UpdatePayment(id uint64, status model.PaymentStatus) (*model.Payment, error)
 
@@ -15,7 +15,7 @@ type AccountingService interface {
 
 	GetExpensesForCustomer(customerID uint64) ([]*model.Expense, error)
 
-	CreateExpense(customerID uint64, rentalID uint64, amount int) (*model.Expense, error)
+	CreateExpense(customerID uint64, rentalID uint64, amount int32) (*model.Expense, error)
 
-	GetCreditBalanceForCustomer(customerID uint64) (int, error)
+	GetCreditBalanceForCustomer(customerID uint64) (int32, error)
 }

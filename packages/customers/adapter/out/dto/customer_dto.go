@@ -11,7 +11,7 @@ type CustomerDTO struct {
 	Name          string      `json:"name"`
 	PositionX     float64     `json:"positionX"`
 	PositionY     float64     `json:"positionY"`
-	CreditBalance float64     `json:"creditBalance"`
+	CreditBalance int32       `json:"creditBalance"`
 	ActiveRental  *RentalDTO  `json:"activeRental"`
 	LastLogin     null.String `json:"lastLogin"`
 	CreatedAt     string      `json:"createdAt"`
