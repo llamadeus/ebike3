@@ -17,6 +17,7 @@ type PaymentCreatedEvent struct {
 
 type PaymentUpdatedEvent struct {
 	ID     string `json:"id"`
+	Amount int    `json:"amount"`
 	Status string `json:"status"`
 }
 
