@@ -47,7 +47,7 @@ func main() {
 	customerService := service.NewCustomerService(kafka, customerViewRepository)
 	authEventsProcessor := in.MakeAuthEventsProcessor(customerService)
 	customerEventsProcessor := in.MakeCustomerEventsProcessor(customerService)
-	paymentsEventsProcessor := in.MakePaymentEventsProcessor(customerService)
+	accountingEventsProcessor := in.MakeAccountingEventsProcessor(customerService)
 	rentalsEventsProcessor := in.MakeRentalEventsProcessor(customerService)
 
 	// Configure service
@@ -70,13 +70,14 @@ func main() {
 	}
 	defer customerConsumer.Stop()
 
-	_, _ = paymentsEventsProcessor, rentalsEventsProcessor
-	//paymentConsumer, err := kafka.StartProcessor(events.PaymentsTopic, config.Get().KafkaGroupID, paymentsEventsProcessor)
-	//if err != nil {
-	//	slog.Error("failed to start event processor", "error", err)
-	//	os.Exit(1)
-	//}
-	//defer paymentConsumer.Stop()
+	accountingConsumer, err := kafka.StartProcessor(events.AccountingTopic, config.Get().KafkaGroupID, accountingEventsProcessor)
+	if err != nil {
+		slog.Error("failed to start event processor", "error", err)
+		os.Exit(1)
+	}
+	defer accountingConsumer.Stop()
+
+	_ = rentalsEventsProcessor
 	//rentalConsumer, err := kafka.StartProcessor(events.RentalsTopic, config.Get().KafkaGroupID, rentalsEventsProcessor)
 	//if err != nil {
 	//	slog.Error("failed to start event processor", "error", err)
