@@ -46,6 +46,10 @@ images:
     image: ebike3/customers:latest
     dockerfile: packages/customers/Dockerfile.dev
     context: packages/customers/
+  accounting:
+    image: ebike3/accounting:latest
+    dockerfile: packages/accounting/Dockerfile.dev
+    context: packages/accounting/
 
 # This is a list of `deployments` that DevSpace can create for this project
 deployments:
@@ -83,6 +87,11 @@ deployments:
       manifests:
         - manifests/customers-mongo.yaml
         - manifests/customers.yaml
+  accounting:
+    kubectl:
+      manifests:
+        - manifests/accounting-postgres.yaml
+        - manifests/accounting.yaml
 
 # This is a list of `dev` containers that are based on the containers created by your deployments
 dev:
@@ -130,6 +139,12 @@ dev:
     imageSelector: ebike3/customers:latest
     sync:
       - path: ./packages/customers:/app
+        disableDownload: true
+
+  accounting:
+    imageSelector: ebike3/accounting:latest
+    sync:
+      - path: ./packages/accounting:/app
         disableDownload: true
 
 # Use the `commands` section to define repeatable dev workflows for this project

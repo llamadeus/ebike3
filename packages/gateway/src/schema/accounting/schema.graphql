@@ -1,0 +1,41 @@
+extend type Query {
+  # Admin
+  payments(status: PaymentStatus): [Payment!]!
+
+  # Customer
+  transactions: [Transaction!]!
+}
+
+extend type Mutation {
+  # Admin
+  confirmPayment(id: ID!): Payment!
+  rejectPayment(id: ID!): Payment!
+
+  # Customer
+  createPayment(amount: Int!): Payment!
+  deletePayment(id: ID!): Payment!
+}
+
+union Transaction = Payment | Expense
+
+type Payment {
+  id: ID!
+  amount: Int!
+  status: PaymentStatus!
+  createdAt: String!
+  customer: Customer
+}
+
+type Expense {
+  id: ID!
+  amount: Int!
+  createdAt: String!
+  customer: Customer
+  #  rental: Rental
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+}

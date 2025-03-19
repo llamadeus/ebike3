@@ -60,17 +60,39 @@ export type CustomerRental = {
   vehicleType: VehicleType;
 };
 
+export type Expense = {
+  __typename?: 'Expense';
+  amount: Scalars['Int']['output'];
+  createdAt: Scalars['String']['output'];
+  customer?: Maybe<Customer>;
+  id: Scalars['ID']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  confirmPayment: Payment;
+  createPayment: Payment;
   createStation: Station;
   createVehicle: Vehicle;
+  deletePayment: Payment;
   deleteStation: Station;
   deleteVehicle: Vehicle;
   login: Auth;
   logout: Scalars['Boolean']['output'];
   registerAdmin: Auth;
   registerCustomer: Auth;
+  rejectPayment: Payment;
   updateCustomerPosition: Scalars['Boolean']['output'];
+};
+
+
+export type MutationconfirmPaymentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationcreatePaymentArgs = {
+  amount: Scalars['Int']['input'];
 };
 
 
@@ -81,6 +103,11 @@ export type MutationcreateStationArgs = {
 
 export type MutationcreateVehicleArgs = {
   input: CreateVehicleInput;
+};
+
+
+export type MutationdeletePaymentArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -112,17 +139,43 @@ export type MutationregisterCustomerArgs = {
 };
 
 
+export type MutationrejectPaymentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationupdateCustomerPositionArgs = {
   position: Vec2dInput;
 };
+
+export type Payment = {
+  __typename?: 'Payment';
+  amount: Scalars['Int']['output'];
+  createdAt: Scalars['String']['output'];
+  customer?: Maybe<Customer>;
+  id: Scalars['ID']['output'];
+  status: PaymentStatus;
+};
+
+export type PaymentStatus =
+  | 'CONFIRMED'
+  | 'PENDING'
+  | 'REJECTED';
 
 export type Query = {
   __typename?: 'Query';
   auth?: Maybe<Auth>;
   availableVehicles: Array<Vehicle>;
   customers: Array<Customer>;
+  payments: Array<Payment>;
   stations: Array<Station>;
+  transactions: Array<Transaction>;
   vehicles: Array<Vehicle>;
+};
+
+
+export type QuerypaymentsArgs = {
+  status?: InputMaybe<PaymentStatus>;
 };
 
 export type Station = {
@@ -131,6 +184,8 @@ export type Station = {
   name: Scalars['String']['output'];
   position: Vec2d;
 };
+
+export type Transaction = Expense | Payment;
 
 export type Vec2d = {
   __typename?: 'Vec2d';
@@ -225,6 +280,10 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
+/** Mapping of union types */
+export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
+  Transaction: ( Omit<Expense, 'customer'> & { customer?: Maybe<_RefType['Customer']> } & { __typename: 'Expense' } ) | ( Omit<Payment, 'customer' | 'status'> & { customer?: Maybe<_RefType['Customer']>, status: _RefType['PaymentStatus'] } & { __typename: 'Payment' } );
+};
 
 
 /** Mapping between all available schema types and the resolvers types */
@@ -238,10 +297,14 @@ export type ResolversTypes = {
   Customer: ResolverTypeWrapper<Omit<Customer, 'activeRental'> & { activeRental?: Maybe<ResolversTypes['CustomerRental']> }>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   CustomerRental: ResolverTypeWrapper<Omit<CustomerRental, 'vehicleType'> & { vehicleType: ResolversTypes['VehicleType'] }>;
+  Expense: ResolverTypeWrapper<Omit<Expense, 'customer'> & { customer?: Maybe<ResolversTypes['Customer']> }>;
   Mutation: ResolverTypeWrapper<{}>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  Payment: ResolverTypeWrapper<Omit<Payment, 'customer' | 'status'> & { customer?: Maybe<ResolversTypes['Customer']>, status: ResolversTypes['PaymentStatus'] }>;
+  PaymentStatus: ResolverTypeWrapper<'PENDING' | 'CONFIRMED' | 'REJECTED'>;
   Query: ResolverTypeWrapper<{}>;
   Station: ResolverTypeWrapper<Station>;
+  Transaction: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['Transaction']>;
   Vec2d: ResolverTypeWrapper<Vec2d>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   Vec2dInput: Vec2dInput;
@@ -259,10 +322,13 @@ export type ResolversParentTypes = {
   Customer: Omit<Customer, 'activeRental'> & { activeRental?: Maybe<ResolversParentTypes['CustomerRental']> };
   Int: Scalars['Int']['output'];
   CustomerRental: CustomerRental;
+  Expense: Omit<Expense, 'customer'> & { customer?: Maybe<ResolversParentTypes['Customer']> };
   Mutation: {};
   Boolean: Scalars['Boolean']['output'];
+  Payment: Omit<Payment, 'customer'> & { customer?: Maybe<ResolversParentTypes['Customer']> };
   Query: {};
   Station: Station;
+  Transaction: ResolversUnionTypes<ResolversParentTypes>['Transaction'];
   Vec2d: Vec2d;
   Float: Scalars['Float']['output'];
   Vec2dInput: Vec2dInput;
@@ -306,23 +372,48 @@ export type CustomerRentalResolvers<ContextType = ResolverContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ExpenseResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Expense'] = ResolversParentTypes['Expense']> = {
+  amount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  customer?: Resolver<Maybe<ResolversTypes['Customer']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  confirmPayment?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationconfirmPaymentArgs, 'id'>>;
+  createPayment?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationcreatePaymentArgs, 'amount'>>;
   createStation?: Resolver<ResolversTypes['Station'], ParentType, ContextType, RequireFields<MutationcreateStationArgs, 'input'>>;
   createVehicle?: Resolver<ResolversTypes['Vehicle'], ParentType, ContextType, RequireFields<MutationcreateVehicleArgs, 'input'>>;
+  deletePayment?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationdeletePaymentArgs, 'id'>>;
   deleteStation?: Resolver<ResolversTypes['Station'], ParentType, ContextType, RequireFields<MutationdeleteStationArgs, 'id'>>;
   deleteVehicle?: Resolver<ResolversTypes['Vehicle'], ParentType, ContextType, RequireFields<MutationdeleteVehicleArgs, 'id'>>;
   login?: Resolver<ResolversTypes['Auth'], ParentType, ContextType, RequireFields<MutationloginArgs, 'password' | 'username'>>;
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   registerAdmin?: Resolver<ResolversTypes['Auth'], ParentType, ContextType, RequireFields<MutationregisterAdminArgs, 'password' | 'username'>>;
   registerCustomer?: Resolver<ResolversTypes['Auth'], ParentType, ContextType, RequireFields<MutationregisterCustomerArgs, 'password' | 'username'>>;
+  rejectPayment?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationrejectPaymentArgs, 'id'>>;
   updateCustomerPosition?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationupdateCustomerPositionArgs, 'position'>>;
 };
+
+export type PaymentResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Payment'] = ResolversParentTypes['Payment']> = {
+  amount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  customer?: Resolver<Maybe<ResolversTypes['Customer']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['PaymentStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type PaymentStatusResolvers = EnumResolverSignature<{ CONFIRMED?: any, PENDING?: any, REJECTED?: any }, ResolversTypes['PaymentStatus']>;
 
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   auth?: Resolver<Maybe<ResolversTypes['Auth']>, ParentType, ContextType>;
   availableVehicles?: Resolver<Array<ResolversTypes['Vehicle']>, ParentType, ContextType>;
   customers?: Resolver<Array<ResolversTypes['Customer']>, ParentType, ContextType>;
+  payments?: Resolver<Array<ResolversTypes['Payment']>, ParentType, ContextType, Partial<QuerypaymentsArgs>>;
   stations?: Resolver<Array<ResolversTypes['Station']>, ParentType, ContextType>;
+  transactions?: Resolver<Array<ResolversTypes['Transaction']>, ParentType, ContextType>;
   vehicles?: Resolver<Array<ResolversTypes['Vehicle']>, ParentType, ContextType>;
 };
 
@@ -331,6 +422,10 @@ export type StationResolvers<ContextType = ResolverContext, ParentType extends R
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Vec2d'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type TransactionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Transaction'] = ResolversParentTypes['Transaction']> = {
+  __resolveType?: TypeResolveFn<'Expense' | 'Payment', ParentType, ContextType>;
 };
 
 export type Vec2dResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Vec2d'] = ResolversParentTypes['Vec2d']> = {
@@ -356,9 +451,13 @@ export type Resolvers<ContextType = ResolverContext> = {
   AuthRole?: AuthRoleResolvers;
   Customer?: CustomerResolvers<ContextType>;
   CustomerRental?: CustomerRentalResolvers<ContextType>;
+  Expense?: ExpenseResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  Payment?: PaymentResolvers<ContextType>;
+  PaymentStatus?: PaymentStatusResolvers;
   Query?: QueryResolvers<ContextType>;
   Station?: StationResolvers<ContextType>;
+  Transaction?: TransactionResolvers<ContextType>;
   Vec2d?: Vec2dResolvers<ContextType>;
   Vehicle?: VehicleResolvers<ContextType>;
   VehicleType?: VehicleTypeResolvers;

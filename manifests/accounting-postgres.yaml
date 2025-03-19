@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: accounting-postgres-statefulset
+  labels:
+    app: accounting
+spec:
+  serviceName: accounting-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: accounting
+  template:
+    metadata:
+      labels:
+        app: accounting
+    spec:
+      containers:
+        - name: accounting-postgres-container
+          image: postgres:17.2-alpine3.21
+          env:
+            - name: POSTGRES_DB
+              value: "accounting"
+            - name: POSTGRES_USER
+              value: "ebike3"
+            - name: POSTGRES_PASSWORD
+              value: "ebike3"
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: accounting-postgres-service
+  labels:
+    app: accounting
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: accounting

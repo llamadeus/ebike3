@@ -1,0 +1,16 @@
+FROM golang:1.23-alpine3.20
+
+# Switch to src volume
+WORKDIR /app
+
+# Install git which is required for go get
+RUN apk update && apk upgrade && \
+    apk add --no-cache git
+
+# Install air
+RUN go install github.com/air-verse/air@latest
+
+# Run air
+COPY .air.toml .
+
+CMD ["air", "-c", ".air.toml"]
