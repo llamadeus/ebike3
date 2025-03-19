@@ -10,7 +10,7 @@ export const rejectPayment: NonNullable<MutationResolvers["rejectPayment"]> = as
   }
 
   const data = await invokeService("accounting", {
-    endpoint: "PATCH /payments/{id}",
+    endpoint: `PATCH /payments/${_arg.id}`,
     headers: {
       "X-Request-ID": _ctx.requestId,
     },

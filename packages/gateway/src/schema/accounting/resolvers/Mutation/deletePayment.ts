@@ -10,7 +10,7 @@ export const deletePayment: NonNullable<MutationResolvers["deletePayment"]> = as
   }
 
   const data = await invokeService("accounting", {
-    endpoint: "DELETE /payments/{id}",
+    endpoint: `DELETE /payments/${_arg.id}`,
     headers: {
       "X-Request-ID": _ctx.requestId,
     },
