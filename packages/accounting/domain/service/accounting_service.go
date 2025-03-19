@@ -95,7 +95,10 @@ func (s *AccountingService) DeleteCustomerPayment(id uint64, customerID uint64) 
 	}
 
 	event := micro.NewEvent(events.AccountingPaymentDeletedEventType, events.PaymentDeletedEvent{
-		ID: dto.IDToDTO(payment.ID),
+		ID:         dto.IDToDTO(payment.ID),
+		CustomerID: dto.IDToDTO(payment.CustomerID),
+		Amount:     payment.Amount,
+		Status:     dto.StatusToDTO(payment.Status),
 	})
 	err = s.kafka.Producer().Send(events.AccountingTopic, event.Payload.ID, event)
 	if err != nil {

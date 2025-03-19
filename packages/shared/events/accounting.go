@@ -23,7 +23,10 @@ type PaymentUpdatedEvent struct {
 }
 
 type PaymentDeletedEvent struct {
-	ID string `json:"id"`
+	ID         string `json:"id"`
+	CustomerID string `json:"customerId"`
+	Amount     int32  `json:"amount"`
+	Status     string `json:"status"`
 }
 
 type ExpenseCreatedEvent struct {
