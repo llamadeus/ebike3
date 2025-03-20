@@ -8,7 +8,7 @@ import (
 	"log/slog"
 )
 
-func MakeStationsEventsProcessor(stationService in.StationService) *micro.EventsProcessor {
+func MakeStationEventsProcessor(stationService in.StationService) *micro.EventsProcessor {
 	return micro.NewEventsProcessor(micro.HandlersMap{
 		events.StationsStationCreatedEventType: micro.NewEventHandler(func(payload events.StationCreatedEvent) error {
 			slog.Info(

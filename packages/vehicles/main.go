@@ -83,7 +83,7 @@ func main() {
 	vehicleRepository := persistence.NewVehicleRepository(db, snowflake)
 	vehicleViewRepository := persistence.NewVehicleViewRepository(mongo.Database(config.Get().MongoDatabase).Collection(config.Get().MongoCollection))
 	vehicleService := service.NewVehicleService(kafka, vehicleRepository, vehicleViewRepository)
-	vehicleEventsProcessor := in.MakeVehiclesEventsProcessor(vehicleService)
+	vehicleEventsProcessor := in.MakeVehicleEventsProcessor(vehicleService)
 
 	// Configure service
 	mux := http.NewServeMux()

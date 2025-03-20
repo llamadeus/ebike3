@@ -82,7 +82,7 @@ func main() {
 	stationRepository := persistence.NewStationRepository(db, snowflake)
 	stationViewRepository := persistence.NewStationViewRepository(mongo.Database(config.Get().MongoDatabase).Collection(config.Get().MongoCollection))
 	stationService := service.NewStationService(kafka, stationRepository, stationViewRepository)
-	stationEventsProcessor := in.MakeStationsEventsProcessor(stationService)
+	stationEventsProcessor := in.MakeStationEventsProcessor(stationService)
 
 	// Configure service
 	mux := http.NewServeMux()
