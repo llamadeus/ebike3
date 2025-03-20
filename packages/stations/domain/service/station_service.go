@@ -112,29 +112,18 @@ func (s *StationService) GetStationViews() ([]*model.StationView, error) {
 // CreateStationView creates a new station with the given name and position.
 func (s *StationService) CreateStationView(id uint64, name string, positionX float64, positionY float64) error {
 	_, err := s.viewRepository.CreateStation(id, name, positionX, positionY)
-	if err != nil {
-		return micro.NewInternalServerError(fmt.Sprintf("failed to create station: %v", err))
-	}
 
-	return nil
+	return err
 }
 
 // UpdateStationView updates the station with the given id.
 func (s *StationService) UpdateStationView(id uint64, name string, positionX float64, positionY float64) error {
 	_, err := s.viewRepository.UpdateStation(id, name, positionX, positionY)
-	if err != nil {
-		return micro.NewInternalServerError(fmt.Sprintf("failed to update station: %v", err))
-	}
 
-	return nil
+	return err
 }
 
 // DeleteStationView deletes the station with the given id.
 func (s *StationService) DeleteStationView(id uint64) error {
-	err := s.viewRepository.DeleteStation(id)
-	if err != nil {
-		return micro.NewInternalServerError(fmt.Sprintf("failed to delete station: %v", err))
-	}
-
-	return nil
+	return s.viewRepository.DeleteStation(id)
 }
