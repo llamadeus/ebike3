@@ -1,0 +1,20 @@
+extend type Query {
+  # Customer
+  activeRental: Rental
+  pastRentals: [Rental!]!
+}
+
+extend type Mutation {
+  # Customer
+  startRental(vehicleId: ID!): Rental!
+  stopRental(id: ID!): Rental!
+}
+
+type Rental {
+  id: ID!
+  start: String!
+  end: String
+#  customer: Customer
+#  vehicle: Vehicle
+  cost: Int
+}

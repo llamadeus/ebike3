@@ -82,6 +82,8 @@ export type Mutation = {
   registerAdmin: Auth;
   registerCustomer: Auth;
   rejectPayment: Payment;
+  startRental: Rental;
+  stopRental: Rental;
   updateCustomerPosition: Scalars['Boolean']['output'];
 };
 
@@ -144,6 +146,16 @@ export type MutationrejectPaymentArgs = {
 };
 
 
+export type MutationstartRentalArgs = {
+  vehicleId: Scalars['ID']['input'];
+};
+
+
+export type MutationstopRentalArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationupdateCustomerPositionArgs = {
   position: Vec2dInput;
 };
@@ -164,9 +176,11 @@ export type PaymentStatus =
 
 export type Query = {
   __typename?: 'Query';
+  activeRental?: Maybe<Rental>;
   auth?: Maybe<Auth>;
   availableVehicles: Array<Vehicle>;
   customers: Array<Customer>;
+  pastRentals: Array<Rental>;
   payments: Array<Payment>;
   stations: Array<Station>;
   transactions: Array<Transaction>;
@@ -176,6 +190,14 @@ export type Query = {
 
 export type QuerypaymentsArgs = {
   status?: InputMaybe<PaymentStatus>;
+};
+
+export type Rental = {
+  __typename?: 'Rental';
+  cost?: Maybe<Scalars['Int']['output']>;
+  end?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  start: Scalars['String']['output'];
 };
 
 export type Station = {
@@ -303,6 +325,7 @@ export type ResolversTypes = {
   Payment: ResolverTypeWrapper<Omit<Payment, 'customer' | 'status'> & { customer?: Maybe<ResolversTypes['Customer']>, status: ResolversTypes['PaymentStatus'] }>;
   PaymentStatus: ResolverTypeWrapper<'PENDING' | 'CONFIRMED' | 'REJECTED'>;
   Query: ResolverTypeWrapper<{}>;
+  Rental: ResolverTypeWrapper<Rental>;
   Station: ResolverTypeWrapper<Station>;
   Transaction: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['Transaction']>;
   Vec2d: ResolverTypeWrapper<Vec2d>;
@@ -327,6 +350,7 @@ export type ResolversParentTypes = {
   Boolean: Scalars['Boolean']['output'];
   Payment: Omit<Payment, 'customer'> & { customer?: Maybe<ResolversParentTypes['Customer']> };
   Query: {};
+  Rental: Rental;
   Station: Station;
   Transaction: ResolversUnionTypes<ResolversParentTypes>['Transaction'];
   Vec2d: Vec2d;
@@ -393,6 +417,8 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   registerAdmin?: Resolver<ResolversTypes['Auth'], ParentType, ContextType, RequireFields<MutationregisterAdminArgs, 'password' | 'username'>>;
   registerCustomer?: Resolver<ResolversTypes['Auth'], ParentType, ContextType, RequireFields<MutationregisterCustomerArgs, 'password' | 'username'>>;
   rejectPayment?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationrejectPaymentArgs, 'id'>>;
+  startRental?: Resolver<ResolversTypes['Rental'], ParentType, ContextType, RequireFields<MutationstartRentalArgs, 'vehicleId'>>;
+  stopRental?: Resolver<ResolversTypes['Rental'], ParentType, ContextType, RequireFields<MutationstopRentalArgs, 'id'>>;
   updateCustomerPosition?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationupdateCustomerPositionArgs, 'position'>>;
 };
 
@@ -408,13 +434,23 @@ export type PaymentResolvers<ContextType = ResolverContext, ParentType extends R
 export type PaymentStatusResolvers = EnumResolverSignature<{ CONFIRMED?: any, PENDING?: any, REJECTED?: any }, ResolversTypes['PaymentStatus']>;
 
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  activeRental?: Resolver<Maybe<ResolversTypes['Rental']>, ParentType, ContextType>;
   auth?: Resolver<Maybe<ResolversTypes['Auth']>, ParentType, ContextType>;
   availableVehicles?: Resolver<Array<ResolversTypes['Vehicle']>, ParentType, ContextType>;
   customers?: Resolver<Array<ResolversTypes['Customer']>, ParentType, ContextType>;
+  pastRentals?: Resolver<Array<ResolversTypes['Rental']>, ParentType, ContextType>;
   payments?: Resolver<Array<ResolversTypes['Payment']>, ParentType, ContextType, Partial<QuerypaymentsArgs>>;
   stations?: Resolver<Array<ResolversTypes['Station']>, ParentType, ContextType>;
   transactions?: Resolver<Array<ResolversTypes['Transaction']>, ParentType, ContextType>;
   vehicles?: Resolver<Array<ResolversTypes['Vehicle']>, ParentType, ContextType>;
+};
+
+export type RentalResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Rental'] = ResolversParentTypes['Rental']> = {
+  cost?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  end?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  start?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type StationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Station'] = ResolversParentTypes['Station']> = {
@@ -456,6 +492,7 @@ export type Resolvers<ContextType = ResolverContext> = {
   Payment?: PaymentResolvers<ContextType>;
   PaymentStatus?: PaymentStatusResolvers;
   Query?: QueryResolvers<ContextType>;
+  Rental?: RentalResolvers<ContextType>;
   Station?: StationResolvers<ContextType>;
   Transaction?: TransactionResolvers<ContextType>;
   Vec2d?: Vec2dResolvers<ContextType>;

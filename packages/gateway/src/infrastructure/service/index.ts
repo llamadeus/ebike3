@@ -8,7 +8,8 @@ type Service =
   | "stations"
   | "vehicles"
   | "customers"
-  | "accounting";
+  | "accounting"
+  | "rentals";
 
 type RequestHeaders = {
   "X-Request-ID": string,
@@ -38,6 +39,7 @@ const SERVICE_MAP: Record<Service, string> = {
   vehicles: "http://vehicles-service:5001",
   customers: "http://customers-service:5001",
   accounting: "http://accounting-service:5001",
+  rentals: "http://rentals-service:5001",
 };
 
 export async function invokeService<TOutput extends z.ZodTypeAny>(
