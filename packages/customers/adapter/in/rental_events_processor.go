@@ -1,15 +1,65 @@
 package in
 
 import (
+	"github.com/llamadeus/ebike3/packages/customers/adapter/out/dto"
+	"github.com/llamadeus/ebike3/packages/customers/domain/events"
 	"github.com/llamadeus/ebike3/packages/customers/domain/port/in"
 	"github.com/llamadeus/ebike3/packages/customers/infrastructure/micro"
+	"log/slog"
 )
 
 func MakeRentalEventsProcessor(customerService in.CustomerService) *micro.EventsProcessor {
 	return micro.NewEventsProcessor(micro.HandlersMap{
-		// TODO: Handle rental started event to update active rental
+		events.RentalsRentalStartedEventType: micro.NewEventHandler(func(payload events.RentalStartedEvent) error {
+			slog.Info(
+				"rental started",
+				"id", payload.ID,
+				"customerId", payload.CustomerID,
+				"vehicleId", payload.VehicleID,
+				"vehicleType", payload.VehicleType,
+				"start", payload.Start,
+				"end", payload.End,
+			)
 
-		// TODO: Handle rental ended event to update active rental
+			rentalID, err := dto.IDFromDTO(payload.ID)
+			if err != nil {
+				return err
+			}
+
+			customerID, err := dto.IDFromDTO(payload.CustomerID)
+			if err != nil {
+				return err
+			}
+
+			vehicleID, err := dto.IDFromDTO(payload.VehicleID)
+			if err != nil {
+				return err
+			}
+
+			return customerService.UpdateCustomerViewActiveRental(customerID, rentalID, vehicleID, payload.VehicleType, payload.Start)
+		}),
+		events.RentalsRentalStoppedEventType: micro.NewEventHandler(func(payload events.RentalStoppedEvent) error {
+			slog.Info(
+				"rental stopped",
+				"id", payload.ID,
+				"customerId", payload.CustomerID,
+				"vehicleId", payload.VehicleID,
+				"start", payload.Start,
+				"end", payload.End,
+			)
+
+			rentalID, err := dto.IDFromDTO(payload.ID)
+			if err != nil {
+				return err
+			}
+
+			customerID, err := dto.IDFromDTO(payload.CustomerID)
+			if err != nil {
+				return err
+			}
+
+			return customerService.ResetCustomerViewActiveRental(customerID, rentalID)
+		}),
 
 		// TODO: Handle rental tick event to decrease credit balance
 	})

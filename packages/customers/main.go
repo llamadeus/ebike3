@@ -77,13 +77,12 @@ func main() {
 	}
 	defer accountingConsumer.Stop()
 
-	_ = rentalsEventsProcessor
-	//rentalConsumer, err := kafka.StartProcessor(events.RentalsTopic, config.Get().KafkaGroupID, rentalsEventsProcessor)
-	//if err != nil {
-	//	slog.Error("failed to start event processor", "error", err)
-	//	os.Exit(1)
-	//}
-	//defer rentalConsumer.Stop()
+	rentalConsumer, err := kafka.StartProcessor(events.RentalsTopic, config.Get().KafkaGroupID, rentalsEventsProcessor)
+	if err != nil {
+		slog.Error("failed to start event processor", "error", err)
+		os.Exit(1)
+	}
+	defer rentalConsumer.Stop()
 
 	if err := micro.Run(mux, serverAddr); err != nil {
 		slog.Error("Failed to run server", "error", err)
