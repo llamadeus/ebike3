@@ -27,4 +27,7 @@ type CustomerViewRepository interface {
 
 	// UpdateCustomerViewActiveRental updates the active rental of the customer with the given id.
 	UpdateCustomerViewActiveRental(customerID uint64, rentalID uint64, vehicleID uint64, vehicleType string, start time.Time) error
+
+	// ResetCustomerViewActiveRental deletes the active rental of the customer with the given id.
+	ResetCustomerViewActiveRental(id uint64) error
 }

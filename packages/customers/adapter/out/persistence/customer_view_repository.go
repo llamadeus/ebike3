@@ -164,3 +164,14 @@ func (r *CustomerViewRepository) UpdateCustomerViewActiveRental(customerID uint6
 
 	return nil
 }
+
+func (r *CustomerViewRepository) ResetCustomerViewActiveRental(id uint64) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	_, err := r.collection.UpdateOne(ctx, bson.M{"_id": id}, bson.M{
+		"$unset": bson.M{"activeRental": 1},
+	})
+
+	return err
+}

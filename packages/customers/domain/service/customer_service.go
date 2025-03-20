@@ -77,3 +77,20 @@ func (s *CustomerService) UpdateCustomerViewLastLogin(id uint64, lastLogin time.
 func (s *CustomerService) UpdateCustomerViewActiveRental(id uint64, rentalID uint64, vehicleID uint64, vehicleType string, start time.Time) error {
 	return s.viewRepository.UpdateCustomerViewActiveRental(id, rentalID, vehicleID, vehicleType, start)
 }
+
+func (s *CustomerService) ResetCustomerViewActiveRental(id uint64, rentalID uint64) error {
+	customer, err := s.viewRepository.GetCustomerByID(id)
+	if err != nil {
+		return err
+	}
+
+	if customer.ActiveRental == nil {
+		return nil
+	}
+
+	if customer.ActiveRental.ID != rentalID {
+		return nil
+	}
+
+	return s.viewRepository.ResetCustomerViewActiveRental(id)
+}

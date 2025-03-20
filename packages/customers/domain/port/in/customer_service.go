@@ -29,4 +29,7 @@ type CustomerService interface {
 
 	// UpdateCustomerViewActiveRental updates the active rental of the customer with the given id.
 	UpdateCustomerViewActiveRental(id uint64, rentalID uint64, vehicleID uint64, vehicleType string, start time.Time) error
+
+	// ResetCustomerViewActiveRental deletes the active rental of the customer with the given id if the rental id matches.
+	ResetCustomerViewActiveRental(id uint64, rentalID uint64) error
 }
