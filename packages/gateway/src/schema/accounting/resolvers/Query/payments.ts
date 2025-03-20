@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql/error";
 import { z } from "zod";
-import { paymentSchema } from "~/adapter/in/dto/payment.ts";
+import { paymentSchema } from "~/adapter/in/dto/payment";
 import { invokeService } from "~/infrastructure/service";
 import type { QueryResolvers } from "~/schema/types.generated";
 
