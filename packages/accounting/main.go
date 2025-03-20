@@ -82,7 +82,6 @@ func main() {
 	paymentRepository := persistence.NewPaymentRepository(db, snowflake)
 	expenseRepository := persistence.NewExpenseRepository(db, snowflake)
 	accountingService := service.NewAccountingService(kafka, paymentRepository, expenseRepository)
-	//vehicleEventsProcessor := in.MakeVehiclesEventsProcessor(vehicleService)
 
 	// Configure service
 	mux := http.NewServeMux()
