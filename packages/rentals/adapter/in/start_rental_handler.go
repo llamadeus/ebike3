@@ -23,7 +23,7 @@ func MakeStartRentalHandler(rentalService in.RentalService) micro.HTTPHandler {
 			return nil, micro.NewBadRequestError("invalid vehicle id")
 		}
 
-		rental, err := rentalService.StartRental(customerID, vehicleID)
+		rental, err := rentalService.StartRental(ctx, customerID, vehicleID)
 		if rental == nil {
 			return nil, err
 		}

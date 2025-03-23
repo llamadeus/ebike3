@@ -1,6 +1,7 @@
 package in
 
 import (
+	"context"
 	"github.com/llamadeus/ebike3/packages/rentals/domain/model"
 	"time"
 )
@@ -10,7 +11,7 @@ type RentalService interface {
 
 	GetPastRentalsForCustomer(customerID uint64) ([]*model.RentalView, error)
 
-	StartRental(customerID uint64, vehicleID uint64) (*model.Rental, error)
+	StartRental(ctx context.Context, customerID uint64, vehicleID uint64) (*model.Rental, error)
 
 	StopRental(id uint64, customerID uint64) (*model.Rental, error)
 

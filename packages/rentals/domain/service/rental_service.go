@@ -1,8 +1,10 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"github.com/llamadeus/ebike3/packages/rentals/adapter/out/dto"
+	"github.com/llamadeus/ebike3/packages/rentals/domain/constants"
 	"github.com/llamadeus/ebike3/packages/rentals/domain/events"
 	"github.com/llamadeus/ebike3/packages/rentals/domain/model"
 	"github.com/llamadeus/ebike3/packages/rentals/domain/port/in"
@@ -47,7 +49,7 @@ func (s *RentalService) GetPastRentalsForCustomer(customerID uint64) ([]*model.R
 	return rentals, nil
 }
 
-func (s *RentalService) StartRental(customerID uint64, vehicleID uint64) (*model.Rental, error) {
+func (s *RentalService) StartRental(ctx context.Context, customerID uint64, vehicleID uint64) (*model.Rental, error) {
 	vehicle, err := s.vehicleService.GetVehicleByID(vehicleID)
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to get vehicle: %v", err))
@@ -73,6 +75,23 @@ func (s *RentalService) StartRental(customerID uint64, vehicleID uint64) (*model
 
 	if activeRental != nil {
 		return nil, micro.NewBadRequestError("vehicle already rented")
+	}
+
+	// Check if the customer's credit balance is sufficient
+	type creditBalanceDTO struct {
+		CustomerID    string `json:"customerId"`
+		CreditBalance int32  `json:"creditBalance"`
+	}
+
+	endpoint := fmt.Sprintf("GET accounting-service:5001/customers/%s/credit-balance", dto.IDToDTO(customerID))
+	result, err := micro.Invoke[any, creditBalanceDTO](ctx, endpoint, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	fee := s.getUnblockingFee(vehicle.Type)
+	if result.CreditBalance < fee {
+		return nil, micro.NewBadRequestError(fmt.Sprintf("customer %d does not have enough credit balance", customerID))
 	}
 
 	rental, err := s.repository.CreateRental(customerID, vehicleID)
@@ -140,4 +159,17 @@ func (s *RentalService) UpdateRentalView(id uint64, end time.Time) error {
 
 func (s *RentalService) AddExpenseToRental(rentalID uint64, amount int32) error {
 	return s.viewRepository.AddExpense(rentalID, amount)
+}
+
+func (s *RentalService) getUnblockingFee(vehicleType model.VehicleType) int32 {
+	switch vehicleType {
+	case model.VehicleTypeBike:
+		return constants.UnblockingFeeBike
+	case model.VehicleTypeEBike:
+		return constants.UnblockingFeeEBike
+	case model.VehicleTypeABike:
+		return constants.UnblockingFeeABike
+	}
+
+	return 0
 }
