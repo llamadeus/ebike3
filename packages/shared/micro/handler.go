@@ -64,9 +64,11 @@ func MakeHandler[TParams any, TInput any, TOutput any](handler Handler[TParams, 
 		}
 
 		ctx := &handlerContext[TParams, TInput]{
-			header: request.Header,
-			params: params,
-			input:  input,
+			context:   request.Context(),
+			requestID: request.Header.Get("X-Request-ID"),
+			header:    request.Header,
+			params:    params,
+			input:     input,
 		}
 
 		output, err := handler(ctx)
