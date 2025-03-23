@@ -2,6 +2,7 @@ package persistence
 
 import (
 	"context"
+	"errors"
 	"github.com/guregu/null/v5"
 	"github.com/llamadeus/ebike3/packages/rentals/domain/model"
 	"github.com/llamadeus/ebike3/packages/rentals/domain/port/out"
@@ -42,6 +43,10 @@ func (r *RentalViewRepository) GetActiveRentalByCustomerID(customerID uint64) (*
 
 	err := r.collection.FindOne(ctx, bson.M{"customerId": customerID, "end": bson.M{"$exists": false}}).Decode(&rental)
 	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
+
 		return nil, err
 	}
 
