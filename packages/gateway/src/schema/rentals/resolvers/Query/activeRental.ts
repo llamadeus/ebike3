@@ -14,7 +14,7 @@ export const activeRental: NonNullable<QueryResolvers["activeRental"]> = async (
     headers: {
       "X-Request-ID": _ctx.requestId,
     },
-    output: rentalSchema,
+    output: rentalSchema.nullable(),
   });
 
   if (data === null) {
