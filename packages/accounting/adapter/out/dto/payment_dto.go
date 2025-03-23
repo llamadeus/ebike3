@@ -9,7 +9,7 @@ import (
 type PaymentDTO struct {
 	ID         string `json:"id"`
 	CustomerID string `json:"customerId"`
-	Amount     int    `json:"amount"`
+	Amount     int32  `json:"amount"`
 	Status     string `json:"status"`
 	CreatedAt  string `json:"createdAt"`
 	UpdatedAt  string `json:"updatedAt"`

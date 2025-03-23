@@ -9,7 +9,7 @@ import (
 func MakeCreatePaymentHandler(accountingService in.AccountingService) micro.HTTPHandler {
 	type input struct {
 		CustomerID string `json:"customerId" validate:"required"`
-		Amount     int    `json:"amount" validate:"required"`
+		Amount     int32  `json:"amount" validate:"required"`
 	}
 
 	return micro.MakeHandler(func(ctx micro.Context[any, input]) (*dto.PaymentDTO, error) {

@@ -9,7 +9,7 @@ type ExpenseDTO struct {
 	ID         string `json:"id"`
 	CustomerID string `json:"customerId"`
 	RentalID   string `json:"rentalId"`
-	Amount     int    `json:"amount"`
+	Amount     int32  `json:"amount"`
 	CreatedAt  string `json:"createdAt"`
 	UpdatedAt  string `json:"updatedAt"`
 }

@@ -10,7 +10,7 @@ func MakeCreateExpenseHandler(accountingService in.AccountingService) micro.HTTP
 	type input struct {
 		CustomerID string `json:"customerId" validate:"required"`
 		RentalID   string `json:"rentalId" validate:"required"`
-		Amount     int    `json:"amount" validate:"required"`
+		Amount     int32  `json:"amount" validate:"required"`
 	}
 
 	return micro.MakeHandler(func(ctx micro.Context[any, input]) (*dto.ExpenseDTO, error) {
