@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rentals-pod
+  labels:
+    app: rentals
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rentals
+  template:
+    metadata:
+      labels:
+        app: rentals
+    spec:
+      containers:
+        - name: rentals-container
+          image: ebike3/rentals:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5001
+          env:
+            - name: SERVICE_ID
+              value: "2"
+            - name: DB_HOST
+              value: rentals-postgres-service
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: ebike3
+            - name: DB_PASSWORD
+              value: ebike3
+            - name: DB_DATABASE
+              value: rentals
+            - name: MONGO_URI
+              value: mongodb://rentals-mongo-service:27017
+            - name: MONGO_DATABASE
+              value: rentals
+            - name: MONGO_COLLECTION
+              value: rentals
+            - name: KAFKA_BROKER
+              value: kafka-service:9092
+            - name: KAFKA_GROUP_ID
+              value: rentals
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rentals-service
+  labels:
+    app: rentals
+spec:
+  selector:
+    app: rentals
+  ports:
+    - protocol: TCP
+      port: 5001
+      targetPort: 5001

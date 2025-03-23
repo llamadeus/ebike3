@@ -50,6 +50,10 @@ images:
     image: ebike3/accounting:latest
     dockerfile: packages/accounting/Dockerfile.dev
     context: packages/accounting/
+  rentals:
+    image: ebike3/rentals:latest
+    dockerfile: packages/rentals/Dockerfile.dev
+    context: packages/rentals/
 
 # This is a list of `deployments` that DevSpace can create for this project
 deployments:
@@ -92,6 +96,12 @@ deployments:
       manifests:
         - manifests/accounting-postgres.yaml
         - manifests/accounting.yaml
+  rentals:
+    kubectl:
+      manifests:
+        - manifests/rentals-mongo.yaml
+        - manifests/rentals-postgres.yaml
+        - manifests/rentals.yaml
 
 # This is a list of `dev` containers that are based on the containers created by your deployments
 dev:
@@ -145,6 +155,12 @@ dev:
     imageSelector: ebike3/accounting:latest
     sync:
       - path: ./packages/accounting:/app
+        disableDownload: true
+
+  rentals:
+    imageSelector: ebike3/rentals:latest
+    sync:
+      - path: ./packages/rentals:/app
         disableDownload: true
 
 # Use the `commands` section to define repeatable dev workflows for this project
