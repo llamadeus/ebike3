@@ -36,7 +36,7 @@ func (r *RentalRepository) Get(id uint64) (*model.Rental, error) {
 
 func (r *RentalRepository) GetActiveRentalByCustomerID(customerID uint64) (*model.Rental, error) {
 	var rental model.Rental
-	err := r.db.Get(&rental, "SELECT * FROM rentals WHERE customer_id=$1 AND end IS NULL LIMIT 1", customerID)
+	err := r.db.Get(&rental, "SELECT * FROM rentals WHERE customer_id=$1 AND `end` IS NULL LIMIT 1", customerID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -59,7 +59,7 @@ func (r *RentalRepository) GetPastRentalsByCustomerID(customerID uint64) ([]*mod
 
 func (r *RentalRepository) GetActiveRentalByVehicleID(vehicleID uint64) (*model.Rental, error) {
 	var rental model.Rental
-	err := r.db.Get(&rental, "SELECT * FROM rentals WHERE vehicle_id=$1 AND end IS NULL LIMIT 1", vehicleID)
+	err := r.db.Get(&rental, "SELECT * FROM rentals WHERE vehicle_id=$1 AND `end` IS NULL LIMIT 1", vehicleID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -76,7 +76,7 @@ func (r *RentalRepository) CreateRental(customerID uint64, vehicleID uint64) (*m
 		return nil, err
 	}
 
-	_, err = r.db.NamedExec("INSERT INTO rentals (id, customer_id, vehicle_id, start, end) VALUES (:id, :customer_id, :vehicle_id, :start, :end)", map[string]any{
+	_, err = r.db.NamedExec("INSERT INTO rentals (id, customer_id, vehicle_id, start, `end`) VALUES (:id, :customer_id, :vehicle_id, :start, :end)", map[string]any{
 		"id":          id,
 		"customer_id": customerID,
 		"vehicle_id":  vehicleID,
@@ -91,7 +91,7 @@ func (r *RentalRepository) CreateRental(customerID uint64, vehicleID uint64) (*m
 }
 
 func (r *RentalRepository) StopRental(id uint64) (*model.Rental, error) {
-	_, err := r.db.Exec("UPDATE rentals SET end = $1 WHERE id = $2", time.Now(), id)
+	_, err := r.db.Exec("UPDATE rentals SET `end` = $1 WHERE id = $2", time.Now(), id)
 	if err != nil {
 		return nil, err
 	}
