@@ -22,7 +22,7 @@ spec:
             - containerPort: 5001
           env:
             - name: SERVICE_ID
-              value: "3"
+              value: "4"
             - name: MONGO_URI
               value: mongodb://customers-mongo-service:27017
             - name: MONGO_DATABASE

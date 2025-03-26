@@ -22,7 +22,7 @@ spec:
             - containerPort: 5001
           env:
             - name: SERVICE_ID
-              value: "3"
+              value: "5"
             - name: DB_HOST
               value: accounting-postgres-service
             - name: DB_PORT
