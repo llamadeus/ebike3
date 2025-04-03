@@ -33,6 +33,16 @@ CREATE TABLE IF NOT EXISTS expenses (
 	amount INT NOT NULL,
 	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS preliminary_expenses (
+	id BIGINT PRIMARY KEY,
+	inquiry_id BIGINT NOT NULL,
+	customer_id BIGINT NOT NULL,
+	rental_id BIGINT NOT NULL,
+	amount INT NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	expires_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );`
 )
 
@@ -81,7 +91,8 @@ func main() {
 	// Configure services
 	paymentRepository := persistence.NewPaymentRepository(db, snowflake)
 	expenseRepository := persistence.NewExpenseRepository(db, snowflake)
-	accountingService := service.NewAccountingService(kafka, paymentRepository, expenseRepository)
+	preliminaryExpenseRepository := persistence.NewPreliminaryExpenseRepository(db, snowflake)
+	accountingService := service.NewAccountingService(kafka, db, paymentRepository, expenseRepository, preliminaryExpenseRepository)
 
 	// Configure service
 	mux := http.NewServeMux()
@@ -90,6 +101,8 @@ func main() {
 	mux.HandleFunc("PATCH /payments/{id}", in.MakeUpdatePaymentHandler(accountingService))
 	mux.HandleFunc("DELETE /payments/{id}", in.MakeDeletePaymentHandler(accountingService))
 	mux.HandleFunc("POST /expenses", in.MakeCreateExpenseHandler(accountingService))
+	mux.HandleFunc("PUT /preliminary-expenses", in.MakeCreatePreliminaryExpenseHandler(accountingService))
+	mux.HandleFunc("POST /preliminary-expenses/{id}/finalize", in.MakeFinalizePreliminaryExpenseHandler(accountingService))
 
 	mux.HandleFunc("GET /customers/{id}/credit-balance", in.MakeGetCreditBalanceForCustomerHandler(accountingService))
 	mux.HandleFunc("GET /customers/{id}/payments", in.MakeGetPaymentsForCustomerHandler(accountingService))

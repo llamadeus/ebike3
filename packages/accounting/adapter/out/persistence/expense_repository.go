@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/llamadeus/ebike3/packages/accounting/domain/model"
 	"github.com/llamadeus/ebike3/packages/accounting/domain/port/out"
+	"github.com/llamadeus/ebike3/packages/accounting/infrastructure/database"
 	"github.com/llamadeus/ebike3/packages/accounting/infrastructure/utils"
 )
 
@@ -54,12 +55,24 @@ func (r *ExpenseRepository) GetByCustomerID(customerID uint64) ([]*model.Expense
 }
 
 func (r *ExpenseRepository) Create(customerID uint64, rentalID uint64, amount int32) (*model.Expense, error) {
+	var expense *model.Expense
+
+	err := database.RunInTx(r.db, func(tx *sqlx.Tx) (err error) {
+		expense, err = r.CreateWithTx(tx, customerID, rentalID, amount)
+
+		return
+	})
+
+	return expense, err
+}
+
+func (r *ExpenseRepository) CreateWithTx(tx *sqlx.Tx, customerID uint64, rentalID uint64, amount int32) (*model.Expense, error) {
 	id, err := r.snowflake.Generate()
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = r.db.NamedExec("INSERT INTO expenses (id, customer_id, rental_id, amount) VALUES (:id, :customer_id, :rental_id, :amount)", map[string]any{
+	_, err = tx.NamedExec("INSERT INTO expenses (id, customer_id, rental_id, amount) VALUES (:id, :customer_id, :rental_id, :amount)", map[string]any{
 		"id":          id,
 		"customer_id": customerID,
 		"rental_id":   rentalID,

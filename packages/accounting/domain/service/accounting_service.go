@@ -2,24 +2,35 @@ package service
 
 import (
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"github.com/llamadeus/ebike3/packages/accounting/adapter/out/dto"
 	"github.com/llamadeus/ebike3/packages/accounting/domain/events"
 	"github.com/llamadeus/ebike3/packages/accounting/domain/model"
 	"github.com/llamadeus/ebike3/packages/accounting/domain/port/in"
 	"github.com/llamadeus/ebike3/packages/accounting/domain/port/out"
+	"github.com/llamadeus/ebike3/packages/accounting/infrastructure/database"
 	"github.com/llamadeus/ebike3/packages/accounting/infrastructure/micro"
+	"time"
 )
 
 type AccountingService struct {
-	kafka             micro.Kafka
-	paymentRepository out.PaymentRepository
-	expenseRepository out.ExpenseRepository
+	kafka                        micro.Kafka
+	transactor                   database.Transactor
+	paymentRepository            out.PaymentRepository
+	expenseRepository            out.ExpenseRepository
+	preliminaryExpenseRepository out.PreliminaryExpenseRepository
 }
 
 var _ in.AccountingService = (*AccountingService)(nil)
 
-func NewAccountingService(kafka micro.Kafka, paymentRepository out.PaymentRepository, expenseRepository out.ExpenseRepository) *AccountingService {
-	return &AccountingService{kafka: kafka, paymentRepository: paymentRepository, expenseRepository: expenseRepository}
+func NewAccountingService(kafka micro.Kafka, transactor database.Transactor, paymentRepository out.PaymentRepository, expenseRepository out.ExpenseRepository, preliminaryExpenseRepository out.PreliminaryExpenseRepository) *AccountingService {
+	return &AccountingService{
+		kafka:                        kafka,
+		transactor:                   transactor,
+		paymentRepository:            paymentRepository,
+		expenseRepository:            expenseRepository,
+		preliminaryExpenseRepository: preliminaryExpenseRepository,
+	}
 }
 
 func (s *AccountingService) GetAllPayments() ([]*model.Payment, error) {
@@ -132,6 +143,55 @@ func (s *AccountingService) CreateExpense(customerID uint64, rentalID uint64, am
 	return expense, nil
 }
 
+func (s *AccountingService) CreatePreliminaryExpense(inquiryID uint64, customerID uint64, rentalID uint64, amount int32) (*model.PreliminaryExpense, error) {
+	expiresAt := time.Now().Add(time.Second * 10)
+	preliminaryExpense, err := s.preliminaryExpenseRepository.Create(inquiryID, customerID, rentalID, amount, expiresAt)
+	if err != nil {
+		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to create preliminary expense: %v", err))
+	}
+
+	event := micro.NewEvent(events.AccountingPreliminaryExpenseCreatedEventType, events.PreliminaryExpenseCreatedEvent{
+		ID:         dto.IDToDTO(preliminaryExpense.ID),
+		InquiryID:  dto.IDToDTO(preliminaryExpense.InquiryID),
+		CustomerID: dto.IDToDTO(preliminaryExpense.CustomerID),
+		RentalID:   dto.IDToDTO(preliminaryExpense.RentalID),
+		Amount:     preliminaryExpense.Amount,
+	})
+	err = s.kafka.Producer().Send(events.AccountingTopic, event.Payload.ID, event)
+	if err != nil {
+		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to send kafka event: %v", err))
+	}
+
+	return preliminaryExpense, nil
+}
+
+func (s *AccountingService) FinalizePreliminaryExpense(id uint64) (*model.Expense, error) {
+	preliminaryExpense, err := s.preliminaryExpenseRepository.Get(id)
+	if err != nil {
+		return nil, micro.NewNotFoundError(fmt.Sprintf("preliminary expense with id %d not found", id))
+	}
+
+	if time.Now().After(preliminaryExpense.ExpiresAt) {
+		return nil, micro.NewBadRequestError("preliminary expense expired")
+	}
+
+	var expense *model.Expense
+
+	err = database.RunInTx(s.transactor, func(tx *sqlx.Tx) (err error) {
+		expense, err = s.expenseRepository.CreateWithTx(tx, preliminaryExpense.CustomerID, preliminaryExpense.RentalID, preliminaryExpense.Amount)
+		if err != nil {
+			return err
+		}
+
+		return s.preliminaryExpenseRepository.DeleteWithTx(tx, preliminaryExpense.ID)
+	})
+	if err != nil {
+		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to finalize preliminary expense: %v", err))
+	}
+
+	return expense, nil
+}
+
 func (s *AccountingService) GetCreditBalanceForCustomer(customerID uint64) (int32, error) {
 	payments, err := s.paymentRepository.GetByCustomerID(customerID)
 	if err != nil {
@@ -141,6 +201,11 @@ func (s *AccountingService) GetCreditBalanceForCustomer(customerID uint64) (int3
 	expenses, err := s.expenseRepository.GetByCustomerID(customerID)
 	if err != nil {
 		return 0, micro.NewInternalServerError(fmt.Sprintf("failed to get expenses: %v", err))
+	}
+
+	preliminaryExpenses, err := s.preliminaryExpenseRepository.GetByCustomerID(customerID)
+	if err != nil {
+		return 0, micro.NewInternalServerError(fmt.Sprintf("failed to get preliminary expenses: %v", err))
 	}
 
 	creditBalance := int32(0)
@@ -153,6 +218,13 @@ func (s *AccountingService) GetCreditBalanceForCustomer(customerID uint64) (int3
 	}
 	for _, expense := range expenses {
 		creditBalance -= expense.Amount
+	}
+	for _, preliminaryExpense := range preliminaryExpenses {
+		if time.Now().After(preliminaryExpense.ExpiresAt) {
+			continue
+		}
+
+		creditBalance -= preliminaryExpense.Amount
 	}
 
 	return creditBalance, nil
