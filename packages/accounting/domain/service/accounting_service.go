@@ -1,6 +1,8 @@
 package service
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/llamadeus/ebike3/packages/accounting/adapter/out/dto"
@@ -176,7 +178,11 @@ func (s *AccountingService) CreatePreliminaryExpense(inquiryID uint64, customerI
 func (s *AccountingService) FinalizePreliminaryExpense(id uint64, rentalID uint64) (*model.Expense, error) {
 	preliminaryExpense, err := s.preliminaryExpenseRepository.Get(id)
 	if err != nil {
-		return nil, micro.NewNotFoundError(fmt.Sprintf("preliminary expense with id %d not found", id))
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, micro.NewNotFoundError(fmt.Sprintf("preliminary expense with id %d not found", id))
+		}
+
+		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to get preliminary expense: %v", err))
 	}
 
 	if time.Now().After(preliminaryExpense.ExpiresAt) {
