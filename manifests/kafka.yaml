@@ -49,7 +49,7 @@ spec:
           app: kafka
       spec:
         accessModes: ["ReadWriteOnce"]
-        storageClassName: "standard"  # Change this to match your storage class
+        storageClassName: "standard"
         resources:
           requests:
             storage: 5Gi
