@@ -17,9 +17,9 @@ type AccountingService interface {
 
 	CreateExpense(customerID uint64, rentalID uint64, amount int32) (*model.Expense, error)
 
-	CreatePreliminaryExpense(inquiryID uint64, customerID uint64, rentalID uint64, amount int32) (*model.PreliminaryExpense, error)
+	CreatePreliminaryExpense(inquiryID uint64, customerID uint64, amount int32) (*model.PreliminaryExpense, error)
 
-	FinalizePreliminaryExpense(id uint64) (*model.Expense, error)
+	FinalizePreliminaryExpense(id uint64, rentalID uint64) (*model.Expense, error)
 
 	GetCreditBalanceForCustomer(customerID uint64) (int32, error)
 }

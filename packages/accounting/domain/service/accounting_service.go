@@ -143,9 +143,9 @@ func (s *AccountingService) CreateExpense(customerID uint64, rentalID uint64, am
 	return expense, nil
 }
 
-func (s *AccountingService) CreatePreliminaryExpense(inquiryID uint64, customerID uint64, rentalID uint64, amount int32) (*model.PreliminaryExpense, error) {
+func (s *AccountingService) CreatePreliminaryExpense(inquiryID uint64, customerID uint64, amount int32) (*model.PreliminaryExpense, error) {
 	expiresAt := time.Now().Add(time.Second * 10)
-	preliminaryExpense, err := s.preliminaryExpenseRepository.Create(inquiryID, customerID, rentalID, amount, expiresAt)
+	preliminaryExpense, err := s.preliminaryExpenseRepository.Create(inquiryID, customerID, amount, expiresAt)
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to create preliminary expense: %v", err))
 	}
@@ -154,7 +154,6 @@ func (s *AccountingService) CreatePreliminaryExpense(inquiryID uint64, customerI
 		ID:         dto.IDToDTO(preliminaryExpense.ID),
 		InquiryID:  dto.IDToDTO(preliminaryExpense.InquiryID),
 		CustomerID: dto.IDToDTO(preliminaryExpense.CustomerID),
-		RentalID:   dto.IDToDTO(preliminaryExpense.RentalID),
 		Amount:     preliminaryExpense.Amount,
 	})
 	err = s.kafka.Producer().Send(events.AccountingTopic, event.Payload.ID, event)
@@ -165,7 +164,7 @@ func (s *AccountingService) CreatePreliminaryExpense(inquiryID uint64, customerI
 	return preliminaryExpense, nil
 }
 
-func (s *AccountingService) FinalizePreliminaryExpense(id uint64) (*model.Expense, error) {
+func (s *AccountingService) FinalizePreliminaryExpense(id uint64, rentalID uint64) (*model.Expense, error) {
 	preliminaryExpense, err := s.preliminaryExpenseRepository.Get(id)
 	if err != nil {
 		return nil, micro.NewNotFoundError(fmt.Sprintf("preliminary expense with id %d not found", id))
@@ -178,7 +177,7 @@ func (s *AccountingService) FinalizePreliminaryExpense(id uint64) (*model.Expens
 	var expense *model.Expense
 
 	err = database.RunInTx(s.transactor, func(tx *sqlx.Tx) (err error) {
-		expense, err = s.expenseRepository.CreateWithTx(tx, preliminaryExpense.CustomerID, preliminaryExpense.RentalID, preliminaryExpense.Amount)
+		expense, err = s.expenseRepository.CreateWithTx(tx, preliminaryExpense.CustomerID, rentalID, preliminaryExpense.Amount)
 		if err != nil {
 			return err
 		}

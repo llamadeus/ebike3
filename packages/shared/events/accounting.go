@@ -45,7 +45,6 @@ type PreliminaryExpenseCreatedEvent struct {
 	ID         string    `json:"id"`
 	InquiryID  string    `json:"inquiryId"`
 	CustomerID string    `json:"customerId"`
-	RentalID   string    `json:"rentalId"`
 	Amount     int32     `json:"amount"`
 	ExpiresAt  time.Time `json:"expiresAt"`
 }

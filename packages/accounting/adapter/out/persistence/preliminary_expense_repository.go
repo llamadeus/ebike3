@@ -54,7 +54,7 @@ func (r *PreliminaryExpenseRepository) GetByCustomerID(customerID uint64) ([]*mo
 	return preliminaryExpenses, nil
 }
 
-func (r *PreliminaryExpenseRepository) Create(inquiryID uint64, customerID uint64, rentalID uint64, amount int32, expiresAt time.Time) (*model.PreliminaryExpense, error) {
+func (r *PreliminaryExpenseRepository) Create(inquiryID uint64, customerID uint64, amount int32, expiresAt time.Time) (*model.PreliminaryExpense, error) {
 	existing, err := r.GetByInquiryID(inquiryID)
 	if err != nil {
 		return nil, err
@@ -69,11 +69,10 @@ func (r *PreliminaryExpenseRepository) Create(inquiryID uint64, customerID uint6
 		return nil, err
 	}
 
-	_, err = r.db.NamedExec("INSERT INTO preliminary_expenses (id, inquiry_id, customer_id, rental_id, amount, expires_at) VALUES (:id, :inquiry_id, :customer_id, :rental_id, :amount, :expires_at)", map[string]any{
+	_, err = r.db.NamedExec("INSERT INTO preliminary_expenses (id, inquiry_id, customer_id, amount, expires_at) VALUES (:id, :inquiry_id, :customer_id, :amount, :expires_at)", map[string]any{
 		"id":          id,
 		"inquiry_id":  inquiryID,
 		"customer_id": customerID,
-		"rental_id":   rentalID,
 		"amount":      amount,
 		"expires_at":  expiresAt,
 	})

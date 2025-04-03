@@ -11,13 +11,22 @@ func MakeFinalizePreliminaryExpenseHandler(accountingService in.AccountingServic
 		ID string `param:"id"`
 	}
 
-	return micro.MakeHandler(func(ctx micro.Context[params, any]) (*dto.ExpenseDTO, error) {
+	type input struct {
+		RentalID string `json:"rentalId" validate:"required"`
+	}
+
+	return micro.MakeHandler(func(ctx micro.Context[params, input]) (*dto.ExpenseDTO, error) {
 		id, err := dto.IDFromDTO(ctx.Params().ID)
 		if err != nil {
 			return nil, err
 		}
 
-		expense, err := accountingService.FinalizePreliminaryExpense(id)
+		rentalID, err := dto.IDFromDTO(ctx.Input().RentalID)
+		if err != nil {
+			return nil, err
+		}
+
+		expense, err := accountingService.FinalizePreliminaryExpense(id, rentalID)
 		if expense == nil {
 			return nil, err
 		}

@@ -10,7 +10,6 @@ func MakeCreatePreliminaryExpenseHandler(accountingService in.AccountingService)
 	type input struct {
 		InquiryID  string `json:"inquiryId" validate:"required"`
 		CustomerID string `json:"customerId" validate:"required"`
-		RentalID   string `json:"rentalId" validate:"required"`
 		Amount     int32  `json:"amount" validate:"required"`
 	}
 
@@ -25,12 +24,7 @@ func MakeCreatePreliminaryExpenseHandler(accountingService in.AccountingService)
 			return nil, err
 		}
 
-		rentalID, err := dto.IDFromDTO(ctx.Input().RentalID)
-		if err != nil {
-			return nil, err
-		}
-
-		preliminaryExpense, err := accountingService.CreatePreliminaryExpense(inquiryID, customerID, rentalID, ctx.Input().Amount)
+		preliminaryExpense, err := accountingService.CreatePreliminaryExpense(inquiryID, customerID, ctx.Input().Amount)
 		if preliminaryExpense == nil {
 			return nil, err
 		}
