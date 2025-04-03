@@ -16,6 +16,15 @@ import (
 
 var methods = []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete}
 
+type InvokeError struct {
+	Status  int
+	Message string
+}
+
+func (e InvokeError) Error() string {
+	return fmt.Sprintf("failed to invoke endpoint: %s (status %d)", e.Message, e.Status)
+}
+
 func Run(mux *http.ServeMux, serverAddr string) (err error) {
 	server := &http.Server{
 		Addr:    serverAddr,
@@ -82,7 +91,7 @@ func Invoke[TInput any, TOutput any](ctx context.Context, endpoint string, reque
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return output, fmt.Errorf("failed to invoke endpoint: %s (status %d)", resp.Status, resp.StatusCode)
+		return output, &InvokeError{resp.StatusCode, resp.Status}
 	}
 
 	err = json.NewDecoder(resp.Body).Decode(&output)
