@@ -46,6 +46,7 @@ metadata:
   labels:
     app: accounting
 spec:
+  clusterIP: None
   ports:
     - port: 5432
       targetPort: 5432

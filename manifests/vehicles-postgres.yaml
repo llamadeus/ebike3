@@ -46,6 +46,7 @@ metadata:
   labels:
     app: vehicles
 spec:
+  clusterIP: None
   ports:
     - port: 5432
       targetPort: 5432
