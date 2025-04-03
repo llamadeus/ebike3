@@ -5,8 +5,12 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func RunInTx(db *sqlx.DB, fn func(tx *sqlx.Tx) error) error {
-	tx, err := db.Beginx()
+type Transactor interface {
+	Beginx() (*sqlx.Tx, error)
+}
+
+func RunInTx(transactor Transactor, fn func(tx *sqlx.Tx) error) error {
+	tx, err := transactor.Beginx()
 	if err != nil {
 		return err
 	}
