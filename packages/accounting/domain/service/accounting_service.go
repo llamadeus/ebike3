@@ -144,6 +144,15 @@ func (s *AccountingService) CreateExpense(customerID uint64, rentalID uint64, am
 }
 
 func (s *AccountingService) CreatePreliminaryExpense(inquiryID uint64, customerID uint64, amount int32) (*model.PreliminaryExpense, error) {
+	creditBalance, err := s.GetCreditBalanceForCustomer(customerID)
+	if err != nil {
+		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to get credit balance: %v", err))
+	}
+
+	if creditBalance < amount {
+		return nil, micro.NewBadRequestError(fmt.Sprintf("customer %d does not have enough credit balance", customerID))
+	}
+
 	expiresAt := time.Now().Add(time.Second * 10)
 	preliminaryExpense, err := s.preliminaryExpenseRepository.Create(inquiryID, customerID, amount, expiresAt)
 	if err != nil {
