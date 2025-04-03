@@ -61,6 +61,10 @@ deployments:
     kubectl:
       manifests:
         - manifests/kafka.yaml
+  redis:
+    kubectl:
+      manifests:
+        - manifests/redis.yaml
   frontend:
     kubectl:
       manifests:
