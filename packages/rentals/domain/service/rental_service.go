@@ -2,6 +2,9 @@ package service
 
 import (
 	"context"
+	"crypto/rand"
+	"encoding/binary"
+	"errors"
 	"fmt"
 	"github.com/llamadeus/ebike3/packages/rentals/adapter/out/dto"
 	"github.com/llamadeus/ebike3/packages/rentals/domain/constants"
@@ -78,25 +81,22 @@ func (s *RentalService) StartRental(ctx context.Context, customerID uint64, vehi
 	}
 
 	// Check if the customer's credit balance is sufficient
-	type creditBalanceDTO struct {
-		CustomerID    string `json:"customerId"`
-		CreditBalance int32  `json:"creditBalance"`
-	}
-
-	endpoint := fmt.Sprintf("GET accounting-service:5001/customers/%s/credit-balance", dto.IDToDTO(customerID))
-	result, err := micro.Invoke[any, creditBalanceDTO](ctx, endpoint, nil, nil)
+	fee := s.getUnblockingFee(vehicle.Type)
+	preliminaryExpenseID, err := s.createPreliminaryExpense(ctx, customerID, fee)
 	if err != nil {
 		return nil, err
-	}
-
-	fee := s.getUnblockingFee(vehicle.Type)
-	if result.CreditBalance < fee {
-		return nil, micro.NewBadRequestError(fmt.Sprintf("customer %d does not have enough credit balance", customerID))
 	}
 
 	rental, err := s.repository.CreateRental(customerID, vehicleID)
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to create rental: %v", err))
+	}
+
+	err = s.finalizePreliminaryExpense(ctx, preliminaryExpenseID, rental.ID)
+	if err != nil {
+		// TODO: Maybe we should delete the rental right here
+
+		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to finalize preliminary expense: %v", err))
 	}
 
 	event := micro.NewEvent(events.RentalsRentalStartedEventType, events.RentalStartedEvent{
@@ -172,4 +172,82 @@ func (s *RentalService) getUnblockingFee(vehicleType model.VehicleType) int32 {
 	}
 
 	return 0
+}
+
+func (s *RentalService) createPreliminaryExpense(ctx context.Context, customerID uint64, amount int32) (string, error) {
+	type preliminaryExpenseInput struct {
+		InquiryID  string `json:"inquiryId" validate:"required"`
+		CustomerID string `json:"customerId" validate:"required"`
+		Amount     int32  `json:"amount" validate:"required"`
+	}
+
+	type preliminaryExpenseDTO struct {
+		ID         string `json:"id"`
+		InquiryID  string `json:"inquiryId"`
+		CustomerID string `json:"customerId"`
+		Amount     int32  `json:"amount"`
+		CreatedAt  string `json:"createdAt"`
+		ExpiresAt  string `json:"expiresAt"`
+	}
+
+	var inquiryID uint64
+	if err := binary.Read(rand.Reader, binary.BigEndian, &inquiryID); err != nil {
+		return "", err
+	}
+
+	var preliminaryExpense preliminaryExpenseDTO
+	var err error
+
+	for i := 0; i < 5; i++ {
+		preliminaryExpense, err = micro.Invoke[preliminaryExpenseInput, preliminaryExpenseDTO](ctx, "PUT accounting-service:5001/preliminary-expenses", nil, preliminaryExpenseInput{
+			InquiryID:  dto.IDToDTO(inquiryID),
+			CustomerID: dto.IDToDTO(customerID),
+			Amount:     amount,
+		})
+		if err == nil {
+			return preliminaryExpense.ID, nil
+		}
+
+		var invokeError *micro.InvokeError
+		if errors.As(err, &invokeError) {
+			if invokeError.Status == 400 {
+				return "", fmt.Errorf("customer %d does not have enough credit balance", customerID)
+			}
+		}
+
+		// Sleep for an increasing amount of time before retrying
+		time.Sleep(time.Second * time.Duration(i+1))
+	}
+
+	return "", err
+}
+
+func (s *RentalService) finalizePreliminaryExpense(ctx context.Context, id string, rentalID uint64) error {
+	type input struct {
+		RentalID string `json:"rentalId" validate:"required"`
+	}
+
+	var err error
+
+	endpoint := fmt.Sprintf("POST accounting-service:5001/preliminary-expenses/%s/finalize", id)
+	for i := 0; i < 5; i++ {
+		_, err = micro.Invoke[input, any](ctx, endpoint, nil, input{
+			RentalID: dto.IDToDTO(rentalID),
+		})
+		if err == nil {
+			return nil
+		}
+
+		var invokeError *micro.InvokeError
+		if errors.As(err, &invokeError) {
+			if invokeError.Status == 404 {
+				return nil
+			}
+		}
+
+		// Sleep for an increasing amount of time before retrying
+		time.Sleep(time.Second * time.Duration(i+1))
+	}
+
+	return err
 }
