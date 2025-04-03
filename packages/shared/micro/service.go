@@ -1,14 +1,17 @@
 package micro
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
+	"reflect"
 	"slices"
 	"strings"
 	"time"
@@ -82,6 +85,21 @@ func Invoke[TInput any, TOutput any](ctx context.Context, endpoint string, reque
 
 	if requestID != nil {
 		req.Header.Set("X-Request-ID", *requestID)
+	}
+
+	t := reflect.TypeOf(input)
+	if t != nil {
+		if t.Kind() != reflect.Struct {
+			return output, errors.New("TInput must be a struct")
+		}
+
+		payload, err := json.Marshal(input)
+		if err != nil {
+			return output, err
+		}
+
+		req.Header.Set("Content-Type", "application/json")
+		req.Body = io.NopCloser(bytes.NewReader(payload))
 	}
 
 	resp, err := httpClient.Do(req)
