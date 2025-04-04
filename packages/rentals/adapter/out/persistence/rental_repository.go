@@ -49,7 +49,7 @@ func (r *RentalRepository) GetActiveRentalByCustomerID(customerID uint64) (*mode
 
 func (r *RentalRepository) GetPastRentalsByCustomerID(customerID uint64) ([]*model.Rental, error) {
 	var rentals []*model.Rental
-	err := r.db.Select(&rentals, "SELECT * FROM rentals WHERE customer_id=$1 AND end IS NOT NULL", customerID)
+	err := r.db.Select(&rentals, "SELECT * FROM rentals WHERE customer_id=$1 AND `end` IS NOT NULL", customerID)
 	if err != nil {
 		return nil, err
 	}
