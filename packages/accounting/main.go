@@ -99,7 +99,7 @@ func main() {
 	mux.HandleFunc("PUT /payments", in.MakeCreatePaymentHandler(accountingService))
 	mux.HandleFunc("PATCH /payments/{id}", in.MakeUpdatePaymentHandler(accountingService))
 	mux.HandleFunc("DELETE /payments/{id}", in.MakeDeletePaymentHandler(accountingService))
-	mux.HandleFunc("POST /expenses", in.MakeCreateExpenseHandler(accountingService))
+	mux.HandleFunc("PUT /expenses", in.MakeCreateExpenseHandler(accountingService))
 	mux.HandleFunc("PUT /preliminary-expenses", in.MakeCreatePreliminaryExpenseHandler(accountingService))
 	mux.HandleFunc("POST /preliminary-expenses/{id}/finalize", in.MakeFinalizePreliminaryExpenseHandler(accountingService))
 
