@@ -10,8 +10,8 @@ import (
 func MakeCreateVehicleHandler(vehicleService in.VehicleService) micro.HTTPHandler {
 	type input struct {
 		Type      model.VehicleType `json:"type" validate:"required,oneof=BIKE EBIKE ABIKE"`
-		PositionX float64           `json:"positionX" validate:"required"`
-		PositionY float64           `json:"positionY" validate:"required"`
+		PositionX float64           `json:"positionX"`
+		PositionY float64           `json:"positionY"`
 	}
 
 	return micro.MakeHandler(func(ctx micro.Context[any, input]) (*dto.VehicleDTO, error) {
