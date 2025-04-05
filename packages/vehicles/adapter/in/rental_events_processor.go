@@ -53,12 +53,12 @@ func MakeRentalEventsProcessor(vehicleService in.VehicleService) *micro.EventsPr
 				return err
 			}
 
-			customerID, err := dto.IDFromDTO(payload.CustomerID)
+			vehicleID, err := dto.IDFromDTO(payload.VehicleID)
 			if err != nil {
 				return err
 			}
 
-			return vehicleService.ResetVehicleViewActiveRental(customerID, rentalID)
+			return vehicleService.ResetVehicleViewActiveRental(rentalID, vehicleID)
 		}),
 		events.RentalsCostUpdatedType: micro.NewEventHandler(func(payload events.CostUpdatedEvent) error {
 			slog.Info(

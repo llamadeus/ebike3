@@ -146,8 +146,8 @@ func (s *VehicleService) UpdateVehicleViewActiveRental(rentalID uint64, customer
 	return s.viewRepository.UpdateActiveRental(rentalID, customerID, vehicleID, vehicleType, start, cost)
 }
 
-func (s *VehicleService) ResetVehicleViewActiveRental(id uint64, rentalID uint64) error {
-	vehicle, err := s.viewRepository.GetVehicleByID(id)
+func (s *VehicleService) ResetVehicleViewActiveRental(rentalID uint64, vehicleID uint64) error {
+	vehicle, err := s.viewRepository.GetVehicleByID(vehicleID)
 	if err != nil {
 		return err
 	}
@@ -160,7 +160,7 @@ func (s *VehicleService) ResetVehicleViewActiveRental(id uint64, rentalID uint64
 		return nil
 	}
 
-	return s.viewRepository.ResetActiveRental(id)
+	return s.viewRepository.ResetActiveRental(vehicleID)
 }
 
 // DeleteVehicleView deletes the vehicle with the given id.

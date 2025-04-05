@@ -28,7 +28,7 @@ type VehicleService interface {
 	UpdateVehicleViewActiveRental(rentalID uint64, customerID uint64, vehicleID uint64, vehicleType string, start time.Time, cost int32) error
 
 	// ResetVehicleViewActiveRental deletes the active rental of the vehicle with the given id if the rental id matches.
-	ResetVehicleViewActiveRental(id uint64, rentalID uint64) error
+	ResetVehicleViewActiveRental(rentalID uint64, vehicleID uint64) error
 
 	// DeleteVehicleView deletes the vehicle with the given id.
 	DeleteVehicleView(id uint64) error
