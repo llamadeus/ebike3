@@ -53,6 +53,7 @@ func main() {
 	// Configure service
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /customers", in.MakeCustomersHandler(customerService))
+	mux.HandleFunc("GET /customers/{id}", in.MakeCustomerHandler(customerService))
 	mux.HandleFunc("PATCH /customers/{id}/position", in.MakeUpdateCustomerPositionHandler(customerService))
 
 	// Start event processor
