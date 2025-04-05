@@ -1,5 +1,5 @@
 import { GraphQLError } from "graphql/error";
-import { authSchema } from "~/adapter/in/dto/auth";
+import { userSchema } from "~/adapter/in/dto/user";
 import { invokeService } from "~/infrastructure/service";
 import type { MutationResolvers } from "~/schema/types.generated";
 
@@ -19,7 +19,7 @@ export const registerCustomer: NonNullable<MutationResolvers["registerCustomer"]
       password: _arg.password,
       role: "CUSTOMER",
     },
-    output: authSchema,
+    output: userSchema,
   });
 
   // Login the user

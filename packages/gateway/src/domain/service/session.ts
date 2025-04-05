@@ -1,6 +1,6 @@
 import { sign, verify } from "jsonwebtoken";
 import { z } from "zod";
-import { authSchema } from "~/adapter/in/dto/auth";
+import { userSchema } from "~/adapter/in/dto/user";
 import { UserRole } from "~/schema/types.generated";
 
 
@@ -55,7 +55,7 @@ export class SessionService {
    * @param request The request object.
    * @param user The user to login.
    */
-  createSession(request: Request, user: z.infer<typeof authSchema>) {
+  createSession(request: Request, user: z.infer<typeof userSchema>) {
     const jwt = this.sign({
       id: user.id,
       username: user.username,

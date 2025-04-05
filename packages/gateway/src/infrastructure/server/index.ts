@@ -1,7 +1,7 @@
 import { useCookies } from "@whatwg-node/server-plugin-cookies";
 import { createSchema, createYoga, type YogaServerInstance } from "graphql-yoga";
 import { nanoid } from "nanoid";
-import { authSchema } from "~/adapter/in/dto/auth";
+import { userSchema } from "~/adapter/in/dto/user";
 import type { Session, SessionService } from "~/domain/service/session";
 import { invokeService } from "~/infrastructure/service";
 import { resolvers } from "~/schema/resolvers.generated";
@@ -89,7 +89,7 @@ export function makeYogaServer(options: Options): YogaServerInstance<ResolverCon
               "X-Request-ID": requestId,
               "X-Session-ID": session.sessionId,
             },
-            output: authSchema.nullable(),
+            output: userSchema.nullable(),
           });
 
           if (auth?.id !== session.id) {

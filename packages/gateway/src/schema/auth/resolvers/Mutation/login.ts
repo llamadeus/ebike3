@@ -1,5 +1,5 @@
 import { GraphQLError } from "graphql/error";
-import { authSchema } from "~/adapter/in/dto/auth";
+import { userSchema } from "~/adapter/in/dto/user";
 import { invokeService } from "~/infrastructure/service";
 import type { MutationResolvers } from "~/schema/types.generated";
 
@@ -18,7 +18,7 @@ export const login: NonNullable<MutationResolvers["login"]> = async (_parent, _a
       username: _arg.username,
       password: _arg.password,
     },
-    output: authSchema,
+    output: userSchema,
   });
 
   // Login the user
