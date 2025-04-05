@@ -34,6 +34,10 @@ func NewRentalService(kafka micro.Kafka, repository out.RentalRepository, viewRe
 	}
 }
 
+func (s *RentalService) GetRentalView(id uint64) (*model.RentalView, error) {
+	return s.viewRepository.Get(id)
+}
+
 func (s *RentalService) GetActiveRentalForCustomer(customerID uint64) (*model.RentalView, error) {
 	rental, err := s.viewRepository.GetActiveRentalByCustomerID(customerID)
 	if err != nil {

@@ -31,6 +31,11 @@ func MakeStopRentalHandler(rentalService in.RentalService) micro.HTTPHandler {
 			return nil, err
 		}
 
-		return dto.RentalToDTO(rental), nil
+		rentalView, err := rentalService.GetRentalView(id)
+		if err != nil {
+			return nil, err
+		}
+
+		return dto.RentalToDTO(rental, rentalView.Cost), nil
 	})
 }

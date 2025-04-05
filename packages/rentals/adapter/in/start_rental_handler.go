@@ -28,6 +28,6 @@ func MakeStartRentalHandler(rentalService in.RentalService) micro.HTTPHandler {
 			return nil, err
 		}
 
-		return dto.RentalToDTO(rental), nil
+		return dto.RentalToDTO(rental, 0), nil
 	})
 }

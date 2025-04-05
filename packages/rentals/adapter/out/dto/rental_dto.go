@@ -17,7 +17,7 @@ type RentalDTO struct {
 	UpdatedAt  string      `json:"updatedAt"`
 }
 
-func RentalToDTO(rental *model.Rental) *RentalDTO {
+func RentalToDTO(rental *model.Rental, cost int32) *RentalDTO {
 	var end null.String
 	if rental.End.Valid {
 		end.SetValid(rental.End.Time.Format(time.RFC3339))
@@ -29,7 +29,7 @@ func RentalToDTO(rental *model.Rental) *RentalDTO {
 		VehicleID:  IDToDTO(rental.VehicleID),
 		Start:      rental.Start.Format(time.RFC3339),
 		End:        end,
-		Cost:       0,
+		Cost:       cost,
 		CreatedAt:  rental.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:  rental.UpdatedAt.Format(time.RFC3339),
 	}

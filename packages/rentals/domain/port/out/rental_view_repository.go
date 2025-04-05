@@ -6,6 +6,8 @@ import (
 )
 
 type RentalViewRepository interface {
+	Get(id uint64) (*model.RentalView, error)
+
 	GetActiveRentalByCustomerID(customerID uint64) (*model.RentalView, error)
 
 	GetPastRentalsByCustomerID(customerID uint64) ([]*model.RentalView, error)

@@ -7,6 +7,8 @@ import (
 )
 
 type RentalService interface {
+	GetRentalView(id uint64) (*model.RentalView, error)
+
 	GetActiveRentalForCustomer(customerID uint64) (*model.RentalView, error)
 
 	GetPastRentalsForCustomer(customerID uint64) ([]*model.RentalView, error)
