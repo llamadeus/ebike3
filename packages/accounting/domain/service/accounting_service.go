@@ -12,6 +12,7 @@ import (
 	"github.com/llamadeus/ebike3/packages/accounting/domain/port/out"
 	"github.com/llamadeus/ebike3/packages/accounting/infrastructure/database"
 	"github.com/llamadeus/ebike3/packages/accounting/infrastructure/micro"
+	"log/slog"
 	"time"
 )
 
@@ -148,16 +149,34 @@ func (s *AccountingService) CreateExpense(customerID uint64, rentalID uint64, am
 func (s *AccountingService) CreatePreliminaryExpense(inquiryID uint64, customerID uint64, amount int32) (*model.PreliminaryExpense, error) {
 	creditBalance, err := s.GetCreditBalanceForCustomer(customerID)
 	if err != nil {
+		slog.Error(
+			"failed to get credit balance for customer",
+			"customerId", customerID,
+			"error", err,
+		)
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to get credit balance: %v", err))
 	}
 
 	if creditBalance < amount {
+		slog.Error(
+			"customer does not have enough credit balance",
+			"customerId", customerID,
+			"creditBalance", creditBalance,
+			"amount", amount,
+		)
 		return nil, micro.NewBadRequestError(fmt.Sprintf("customer %d does not have enough credit balance", customerID))
 	}
 
 	expiresAt := time.Now().Add(time.Second * 10)
 	preliminaryExpense, err := s.preliminaryExpenseRepository.Create(inquiryID, customerID, amount, expiresAt)
 	if err != nil {
+		slog.Error(
+			"failed to create preliminary expense",
+			"inquiryId", inquiryID,
+			"customerId", customerID,
+			"amount", amount,
+			"error", err,
+		)
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to create preliminary expense: %v", err))
 	}
 
