@@ -1,4 +1,7 @@
 extend type Query {
+  # Admin
+  users: [User!]! @loggedIn
+
   # Auth
   auth: User
 }

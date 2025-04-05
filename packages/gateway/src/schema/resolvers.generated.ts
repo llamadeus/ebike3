@@ -8,6 +8,7 @@ import    { pastRentals as Query_pastRentals } from './rentals/resolvers/Query/p
 import    { payments as Query_payments } from './accounting/resolvers/Query/payments';
 import    { stations as Query_stations } from './stations/resolvers/Query/stations';
 import    { transactions as Query_transactions } from './accounting/resolvers/Query/transactions';
+import    { users as Query_users } from './auth/resolvers/Query/users';
 import    { vehicles as Query_vehicles } from './vehicles/resolvers/Query/vehicles';
 import    { confirmPayment as Mutation_confirmPayment } from './accounting/resolvers/Mutation/confirmPayment';
 import    { createPayment as Mutation_createPayment } from './accounting/resolvers/Mutation/createPayment';
@@ -35,7 +36,7 @@ import    { Vec2d } from './base/resolvers/Vec2d';
 import    { Vehicle } from './vehicles/resolvers/Vehicle';
 import    { VehicleRental } from './vehicles/resolvers/VehicleRental';
     export const resolvers: Resolvers = {
-      Query: { activeRental: Query_activeRental,auth: Query_auth,availableVehicles: Query_availableVehicles,customers: Query_customers,pastRentals: Query_pastRentals,payments: Query_payments,stations: Query_stations,transactions: Query_transactions,vehicles: Query_vehicles },
+      Query: { activeRental: Query_activeRental,auth: Query_auth,availableVehicles: Query_availableVehicles,customers: Query_customers,pastRentals: Query_pastRentals,payments: Query_payments,stations: Query_stations,transactions: Query_transactions,users: Query_users,vehicles: Query_vehicles },
       Mutation: { confirmPayment: Mutation_confirmPayment,createPayment: Mutation_createPayment,createStation: Mutation_createStation,createVehicle: Mutation_createVehicle,deletePayment: Mutation_deletePayment,deleteStation: Mutation_deleteStation,deleteVehicle: Mutation_deleteVehicle,login: Mutation_login,logout: Mutation_logout,registerAdmin: Mutation_registerAdmin,registerCustomer: Mutation_registerCustomer,rejectPayment: Mutation_rejectPayment,startRental: Mutation_startRental,stopRental: Mutation_stopRental,updateCustomerPosition: Mutation_updateCustomerPosition },
       
       Customer: Customer,

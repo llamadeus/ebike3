@@ -174,6 +174,7 @@ export type Query = {
   payments: Array<Payment>;
   stations: Array<Station>;
   transactions: Array<Transaction>;
+  users: Array<User>;
   vehicles: Array<Vehicle>;
 };
 
@@ -449,6 +450,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   payments?: Resolver<Array<ResolversTypes['Payment']>, ParentType, ContextType, Partial<QuerypaymentsArgs>>;
   stations?: Resolver<Array<ResolversTypes['Station']>, ParentType, ContextType>;
   transactions?: Resolver<Array<ResolversTypes['Transaction']>, ParentType, ContextType>;
+  users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
   vehicles?: Resolver<Array<ResolversTypes['Vehicle']>, ParentType, ContextType>;
 };
 
