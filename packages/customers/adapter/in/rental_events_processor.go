@@ -36,7 +36,7 @@ func MakeRentalEventsProcessor(customerService in.CustomerService) *micro.Events
 				return err
 			}
 
-			return customerService.UpdateCustomerViewActiveRental(customerID, rentalID, vehicleID, payload.VehicleType, payload.Start)
+			return customerService.UpdateCustomerViewActiveRental(customerID, rentalID, vehicleID, payload.VehicleType, payload.Start, 0)
 		}),
 		events.RentalsRentalStoppedEventType: micro.NewEventHandler(func(payload events.RentalStoppedEvent) error {
 			slog.Info(
@@ -59,6 +59,34 @@ func MakeRentalEventsProcessor(customerService in.CustomerService) *micro.Events
 			}
 
 			return customerService.ResetCustomerViewActiveRental(customerID, rentalID)
+		}),
+		events.RentalsCostUpdatedType: micro.NewEventHandler(func(payload events.CostUpdatedEvent) error {
+			slog.Info(
+				"cost updated",
+				"id", payload.ID,
+				"customerId", payload.CustomerID,
+				"vehicleId", payload.VehicleID,
+				"vehicleType", payload.VehicleType,
+				"start", payload.Start,
+				"cost", payload.Cost,
+			)
+
+			rentalID, err := dto.IDFromDTO(payload.ID)
+			if err != nil {
+				return err
+			}
+
+			customerID, err := dto.IDFromDTO(payload.CustomerID)
+			if err != nil {
+				return err
+			}
+
+			vehicleID, err := dto.IDFromDTO(payload.VehicleID)
+			if err != nil {
+				return err
+			}
+
+			return customerService.UpdateCustomerViewActiveRental(customerID, rentalID, vehicleID, payload.VehicleType, payload.Start, payload.Cost)
 		}),
 
 		// TODO: Handle rental tick event to decrease credit balance

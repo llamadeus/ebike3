@@ -26,7 +26,7 @@ type CustomerViewRepository interface {
 	UpdateCustomerViewLastLogin(id uint64, lastLogin time.Time) error
 
 	// UpdateCustomerViewActiveRental updates the active rental of the customer with the given id.
-	UpdateCustomerViewActiveRental(customerID uint64, rentalID uint64, vehicleID uint64, vehicleType string, start time.Time) error
+	UpdateCustomerViewActiveRental(customerID uint64, rentalID uint64, vehicleID uint64, vehicleType string, start time.Time, cost int32) error
 
 	// ResetCustomerViewActiveRental deletes the active rental of the customer with the given id.
 	ResetCustomerViewActiveRental(id uint64) error

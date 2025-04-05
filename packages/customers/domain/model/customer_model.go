@@ -23,6 +23,7 @@ type RentalView struct {
 	CustomerID  uint64    `bson:"customerId,omitempty"`
 	VehicleType string    `bson:"vehicleType,omitempty"`
 	Start       time.Time `bson:"start,omitempty"`
+	Cost        int32     `bson:"cost,omitempty"`
 	CreatedAt   time.Time `bson:"createdAt,omitempty"`
 	UpdatedAt   time.Time `bson:"updatedAt,omitempty"`
 }

@@ -74,8 +74,8 @@ func (s *CustomerService) UpdateCustomerViewLastLogin(id uint64, lastLogin time.
 	return s.viewRepository.UpdateCustomerViewLastLogin(id, lastLogin)
 }
 
-func (s *CustomerService) UpdateCustomerViewActiveRental(id uint64, rentalID uint64, vehicleID uint64, vehicleType string, start time.Time) error {
-	return s.viewRepository.UpdateCustomerViewActiveRental(id, rentalID, vehicleID, vehicleType, start)
+func (s *CustomerService) UpdateCustomerViewActiveRental(id uint64, rentalID uint64, vehicleID uint64, vehicleType string, start time.Time, cost int32) error {
+	return s.viewRepository.UpdateCustomerViewActiveRental(id, rentalID, vehicleID, vehicleType, start, cost)
 }
 
 func (s *CustomerService) ResetCustomerViewActiveRental(id uint64, rentalID uint64) error {

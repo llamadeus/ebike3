@@ -134,7 +134,7 @@ func (r *CustomerViewRepository) UpdateCustomerViewLastLogin(id uint64, lastLogi
 	return nil
 }
 
-func (r *CustomerViewRepository) UpdateCustomerViewActiveRental(customerID uint64, rentalID uint64, vehicleID uint64, vehicleType string, start time.Time) error {
+func (r *CustomerViewRepository) UpdateCustomerViewActiveRental(customerID uint64, rentalID uint64, vehicleID uint64, vehicleType string, start time.Time, cost int32) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -145,6 +145,7 @@ func (r *CustomerViewRepository) UpdateCustomerViewActiveRental(customerID uint6
 			CustomerID:  customerID,
 			VehicleType: vehicleType,
 			Start:       start,
+			Cost:        cost,
 			CreatedAt:   time.Now(),
 			UpdatedAt:   time.Now(),
 		},
