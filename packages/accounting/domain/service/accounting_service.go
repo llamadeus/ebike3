@@ -222,14 +222,25 @@ func (s *AccountingService) FinalizePreliminaryExpense(id uint64, rentalID uint6
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to finalize preliminary expense: %v", err))
 	}
 
-	event := micro.NewEvent(events.AccountingPreliminaryExpenseFinalizedEventType, events.PreliminaryExpenseFinalizedEvent{
+	expenseCreatedEvent := micro.NewEvent(events.AccountingExpenseCreatedEventType, events.ExpenseCreatedEvent{
+		ID:         dto.IDToDTO(expense.ID),
+		CustomerID: dto.IDToDTO(expense.CustomerID),
+		RentalID:   dto.IDToDTO(expense.RentalID),
+		Amount:     expense.Amount,
+	})
+	err = s.kafka.Producer().Send(events.AccountingTopic, expenseCreatedEvent.Payload.ID, expenseCreatedEvent)
+	if err != nil {
+		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to send kafka event: %v", err))
+	}
+
+	preliminaryExpenseFinalizedEvent := micro.NewEvent(events.AccountingPreliminaryExpenseFinalizedEventType, events.PreliminaryExpenseFinalizedEvent{
 		ID:         dto.IDToDTO(preliminaryExpense.ID),
 		InquiryID:  dto.IDToDTO(preliminaryExpense.InquiryID),
 		CustomerID: dto.IDToDTO(preliminaryExpense.CustomerID),
 		RentalID:   dto.IDToDTO(rentalID),
 		Amount:     preliminaryExpense.Amount,
 	})
-	err = s.kafka.Producer().Send(events.AccountingTopic, event.Payload.ID, event)
+	err = s.kafka.Producer().Send(events.AccountingTopic, preliminaryExpenseFinalizedEvent.Payload.ID, preliminaryExpenseFinalizedEvent)
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to send kafka event: %v", err))
 	}
