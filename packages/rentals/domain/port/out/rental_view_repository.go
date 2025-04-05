@@ -16,5 +16,5 @@ type RentalViewRepository interface {
 
 	Update(id uint64, end time.Time) (*model.RentalView, error)
 
-	AddExpense(rentalID uint64, amount int32) error
+	AddExpense(rentalID uint64, amount int32) (*model.RentalView, error)
 }

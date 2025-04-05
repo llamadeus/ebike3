@@ -181,7 +181,25 @@ func (s *RentalService) UpdateRentalView(id uint64, end time.Time) error {
 }
 
 func (s *RentalService) AddExpenseToRental(rentalID uint64, amount int32) error {
-	return s.viewRepository.AddExpense(rentalID, amount)
+	rental, err := s.viewRepository.AddExpense(rentalID, amount)
+	if err != nil {
+		return err
+	}
+
+	event := micro.NewEvent(events.RentalsCostUpdatedType, events.CostUpdatedEvent{
+		ID:          dto.IDToDTO(rental.ID),
+		CustomerID:  dto.IDToDTO(rental.CustomerID),
+		VehicleID:   dto.IDToDTO(rental.VehicleID),
+		VehicleType: dto.TypeToDTO(rental.VehicleType),
+		Start:       rental.Start,
+		Cost:        rental.Cost,
+	})
+	err = s.kafka.Producer().Send(events.RentalsTopic, event.Payload.ID, event)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *RentalService) ChargeActiveRental(ctx context.Context, rentalID uint64) error {

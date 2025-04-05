@@ -122,13 +122,16 @@ func (r *RentalViewRepository) Update(id uint64, end time.Time) (*model.RentalVi
 	return r.Get(id)
 }
 
-func (r *RentalViewRepository) AddExpense(rentalID uint64, amount int32) error {
+func (r *RentalViewRepository) AddExpense(rentalID uint64, amount int32) (*model.RentalView, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	_, err := r.collection.UpdateOne(ctx, bson.M{"_id": rentalID}, bson.M{
 		"$inc": bson.M{"cost": amount},
 	})
+	if err != nil {
+		return nil, err
+	}
 
-	return err
+	return r.Get(rentalID)
 }
