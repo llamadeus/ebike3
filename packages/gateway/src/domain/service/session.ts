@@ -1,6 +1,7 @@
 import { sign, verify } from "jsonwebtoken";
 import { z } from "zod";
 import { userSchema } from "~/adapter/in/dto/user";
+import { isNullish } from "~/infrastructure/utils/helpers.ts";
 import { UserRole } from "~/schema/types.generated";
 
 
@@ -56,6 +57,10 @@ export class SessionService {
    * @param user The user to login.
    */
   createSession(request: Request, user: z.infer<typeof userSchema>) {
+    if (isNullish(user.sessionId)) {
+      throw new Error("Invalid session");
+    }
+
     const jwt = this.sign({
       id: user.id,
       username: user.username,
