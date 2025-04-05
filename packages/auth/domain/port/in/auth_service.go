@@ -3,6 +3,9 @@ package in
 import "github.com/llamadeus/ebike3/packages/auth/domain/model"
 
 type AuthService interface {
+	// GetUsers returns all registered users.
+	GetUsers() ([]*model.User, error)
+
 	// GetAuthBySessionID returns the auth with the given session id.
 	GetAuthBySessionID(sessionID uint64) (*model.Auth, error)
 

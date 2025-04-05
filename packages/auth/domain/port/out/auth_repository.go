@@ -10,6 +10,9 @@ type AuthRepository interface {
 	// CreateSessionAndUpdateLastLogin creates a new session for the user and updates the last login time.
 	CreateSessionAndUpdateLastLogin(user *model.User) (*model.Session, error)
 
+	// GetAll returns all registered users.
+	GetAll() ([]*model.User, error)
+
 	// GetUserByID returns the user with the given id.
 	GetUserByID(id uint64) (*model.User, error)
 

@@ -89,6 +89,7 @@ func main() {
 
 	// Configure service
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /users", in.MakeUsersHandler(authService))
 	mux.HandleFunc("GET /auth", in.MakeAuthHandler(authService))
 	mux.HandleFunc("POST /login", in.MakeLoginHandler(authService))
 	mux.HandleFunc("POST /register", in.MakeRegisterHandler(authService))

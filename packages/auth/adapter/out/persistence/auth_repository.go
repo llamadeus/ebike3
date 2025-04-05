@@ -104,6 +104,16 @@ func (r *AuthRepository) CreateSessionAndUpdateLastLogin(user *model.User) (*mod
 	return r.GetSessionByID(sessionID)
 }
 
+func (r *AuthRepository) GetAll() ([]*model.User, error) {
+	var users []*model.User
+	err := r.db.Select(&users, "SELECT * FROM users")
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
 func (r *AuthRepository) GetUserByID(id uint64) (*model.User, error) {
 	var user model.User
 	err := r.db.Get(&user, "SELECT * FROM users WHERE id=$1 LIMIT 1", id)

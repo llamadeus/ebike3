@@ -31,6 +31,16 @@ func NewAuthService(kafka micro.Kafka, repository out.AuthRepository) *AuthServi
 	}
 }
 
+// GetUsers returns all registered users.
+func (s *AuthService) GetUsers() ([]*model.User, error) {
+	users, err := s.repository.GetAll()
+	if err != nil {
+		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to get users: %v", err))
+	}
+
+	return users, nil
+}
+
 // GetAuthBySessionID returns the auth with the given session id.
 func (s *AuthService) GetAuthBySessionID(sessionID uint64) (*model.Auth, error) {
 	session, err := s.repository.GetSessionByID(sessionID)
