@@ -66,6 +66,7 @@ export type Expense = {
   createdAt: Scalars['String']['output'];
   customer?: Maybe<Customer>;
   id: Scalars['ID']['output'];
+  rentalId: Scalars['ID']['output'];
 };
 
 export type Mutation = {
@@ -401,6 +402,7 @@ export type ExpenseResolvers<ContextType = ResolverContext, ParentType extends R
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   customer?: Resolver<Maybe<ResolversTypes['Customer']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  rentalId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

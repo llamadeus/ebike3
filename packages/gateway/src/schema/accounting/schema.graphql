@@ -31,6 +31,7 @@ type Expense {
   amount: Int!
   createdAt: String!
   customer: Customer
+  rentalId: ID!
   #  rental: Rental
 }
 

@@ -46,6 +46,7 @@ export const transactions: NonNullable<QueryResolvers["transactions"]> = async (
       amount: expense.amount,
       createdAt: expense.createdAt,
       customer: null,
+      rentalId: expense.rentalId,
     });
   }
 
