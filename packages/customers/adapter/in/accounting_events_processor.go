@@ -64,7 +64,7 @@ func MakeAccountingEventsProcessor(customerService in.CustomerService) *micro.Ev
 				return err
 			}
 
-			return customerService.UpdateCustomerViewCreditBalance(customerID, payload.Amount)
+			return customerService.UpdateCustomerViewCreditBalance(customerID, -payload.Amount)
 		}),
 	})
 }
