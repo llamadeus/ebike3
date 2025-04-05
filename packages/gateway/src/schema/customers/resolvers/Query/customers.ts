@@ -2,6 +2,7 @@ import { GraphQLError } from "graphql/error";
 import { z } from "zod";
 import { customerSchema } from "~/adapter/in/dto/customer";
 import { invokeService } from "~/infrastructure/service";
+import { isNullish } from "~/infrastructure/utils/helpers.ts";
 import type { QueryResolvers } from "~/schema/types.generated";
 
 
@@ -26,7 +27,7 @@ export const customers: NonNullable<QueryResolvers["customers"]> = async (_paren
       y: customer.positionY,
     },
     creditBalance: customer.creditBalance,
-    activeRental: typeof customer.activeRental != "undefined" && customer.activeRental !== null
+    activeRental: ! isNullish(customer.activeRental)
       ? {
         id: customer.activeRental.id,
         vehicleId: customer.activeRental.vehicleId,
