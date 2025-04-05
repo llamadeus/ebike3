@@ -3,6 +3,6 @@
  *
  * @param value The value to check
  */
-export function isNullOrUndefined(value: unknown): value is null | undefined {
+export function isNullish(value: unknown): value is null | undefined {
   return typeof value == "undefined" || value === null;
 }
