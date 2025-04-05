@@ -18,7 +18,17 @@ type Vehicle {
   position: Vec2d!
   battery: Float!
   available: Boolean!
+  activeRental: VehicleRental
   createdAt: String!
+}
+
+type VehicleRental {
+  id: ID!
+  vehicleId: ID!
+  customerId: ID!
+  vehicleType: VehicleType!
+  start: String!
+  cost: Int!
 }
 
 enum VehicleType {

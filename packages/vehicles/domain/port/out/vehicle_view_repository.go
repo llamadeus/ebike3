@@ -1,6 +1,9 @@
 package out
 
-import "github.com/llamadeus/ebike3/packages/vehicles/domain/model"
+import (
+	"github.com/llamadeus/ebike3/packages/vehicles/domain/model"
+	"time"
+)
 
 // VehicleViewRepository is an interface for a Mongo repository for vehicle view data.
 type VehicleViewRepository interface {
@@ -19,8 +22,11 @@ type VehicleViewRepository interface {
 	// UpdateVehicle updates the vehicle with the given id.
 	UpdateVehicle(id uint64, positionX float64, positionY float64, battery float64) (*model.VehicleView, error)
 
-	// UpdateVehicleAvailability updates the availability of the vehicle with the given id.
-	UpdateVehicleAvailability(id uint64, available bool) (*model.VehicleView, error)
+	// UpdateActiveRental updates the active rental of the vehicle with the given id.
+	UpdateActiveRental(rentalID uint64, customerID uint64, vehicleID uint64, vehicleType string, start time.Time, cost int32) error
+
+	// ResetActiveRental deletes the active rental of the vehicle with the given id.
+	ResetActiveRental(id uint64) error
 
 	// DeleteVehicle deletes the vehicle with the given id.
 	DeleteVehicle(id uint64) error

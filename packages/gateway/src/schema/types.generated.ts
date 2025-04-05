@@ -224,12 +224,23 @@ export type Vec2dInput = {
 
 export type Vehicle = {
   __typename?: 'Vehicle';
+  activeRental?: Maybe<VehicleRental>;
   available: Scalars['Boolean']['output'];
   battery: Scalars['Float']['output'];
   createdAt: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   position: Vec2d;
   type: VehicleType;
+};
+
+export type VehicleRental = {
+  __typename?: 'VehicleRental';
+  cost: Scalars['Int']['output'];
+  customerId: Scalars['ID']['output'];
+  id: Scalars['ID']['output'];
+  start: Scalars['String']['output'];
+  vehicleId: Scalars['ID']['output'];
+  vehicleType: VehicleType;
 };
 
 export type VehicleType =
@@ -333,7 +344,8 @@ export type ResolversTypes = {
   Vec2d: ResolverTypeWrapper<Vec2d>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   Vec2dInput: Vec2dInput;
-  Vehicle: ResolverTypeWrapper<Omit<Vehicle, 'type'> & { type: ResolversTypes['VehicleType'] }>;
+  Vehicle: ResolverTypeWrapper<Omit<Vehicle, 'activeRental' | 'type'> & { activeRental?: Maybe<ResolversTypes['VehicleRental']>, type: ResolversTypes['VehicleType'] }>;
+  VehicleRental: ResolverTypeWrapper<Omit<VehicleRental, 'vehicleType'> & { vehicleType: ResolversTypes['VehicleType'] }>;
   VehicleType: ResolverTypeWrapper<'BIKE' | 'EBIKE' | 'ABIKE'>;
 };
 
@@ -358,7 +370,8 @@ export type ResolversParentTypes = {
   Vec2d: Vec2d;
   Float: Scalars['Float']['output'];
   Vec2dInput: Vec2dInput;
-  Vehicle: Vehicle;
+  Vehicle: Omit<Vehicle, 'activeRental'> & { activeRental?: Maybe<ResolversParentTypes['VehicleRental']> };
+  VehicleRental: VehicleRental;
 };
 
 export type loggedInDirectiveArgs = { };
@@ -475,12 +488,23 @@ export type Vec2dResolvers<ContextType = ResolverContext, ParentType extends Res
 };
 
 export type VehicleResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Vehicle'] = ResolversParentTypes['Vehicle']> = {
+  activeRental?: Resolver<Maybe<ResolversTypes['VehicleRental']>, ParentType, ContextType>;
   available?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   battery?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Vec2d'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['VehicleType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type VehicleRentalResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['VehicleRental'] = ResolversParentTypes['VehicleRental']> = {
+  cost?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  customerId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  start?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  vehicleId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  vehicleType?: Resolver<ResolversTypes['VehicleType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -501,6 +525,7 @@ export type Resolvers<ContextType = ResolverContext> = {
   Transaction?: TransactionResolvers<ContextType>;
   Vec2d?: Vec2dResolvers<ContextType>;
   Vehicle?: VehicleResolvers<ContextType>;
+  VehicleRental?: VehicleRentalResolvers<ContextType>;
   VehicleType?: VehicleTypeResolvers;
 };
 

@@ -27,6 +27,7 @@ export const vehicles: NonNullable<QueryResolvers["vehicles"]> = async (_parent,
     },
     battery: vehicle.battery,
     available: vehicle.available,
+    activeRental: vehicle.activeRental,
     createdAt: vehicle.createdAt,
     updatedAt: vehicle.updatedAt,
   }));

@@ -1,6 +1,9 @@
 package in
 
-import "github.com/llamadeus/ebike3/packages/vehicles/domain/model"
+import (
+	"github.com/llamadeus/ebike3/packages/vehicles/domain/model"
+	"time"
+)
 
 type VehicleService interface {
 	// CreateVehicle creates a new vehicle with the given type, position, and battery.
@@ -21,8 +24,11 @@ type VehicleService interface {
 	// UpdateVehicleView updates the vehicle with the given id.
 	UpdateVehicleView(id uint64, positionX float64, positionY float64, battery float64) error
 
-	// UpdateVehicleViewAvailability updates the availability of the vehicle with the given id.
-	UpdateVehicleViewAvailability(id uint64, available bool) error
+	// UpdateVehicleViewActiveRental updates the active rental of the vehicle with the given id.
+	UpdateVehicleViewActiveRental(rentalID uint64, customerID uint64, vehicleID uint64, vehicleType string, start time.Time, cost int32) error
+
+	// ResetVehicleViewActiveRental deletes the active rental of the vehicle with the given id if the rental id matches.
+	ResetVehicleViewActiveRental(id uint64, rentalID uint64) error
 
 	// DeleteVehicleView deletes the vehicle with the given id.
 	DeleteVehicleView(id uint64) error

@@ -2,7 +2,7 @@ package persistence
 
 import (
 	"context"
-	model "github.com/llamadeus/ebike3/packages/vehicles/domain/model"
+	"github.com/llamadeus/ebike3/packages/vehicles/domain/model"
 	"github.com/llamadeus/ebike3/packages/vehicles/domain/port/out"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -51,7 +51,7 @@ func (r *VehicleViewRepository) GetAvailableVehicles() ([]*model.VehicleView, er
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	cursor, err := r.collection.Find(ctx, bson.M{"available": true})
+	cursor, err := r.collection.Find(ctx, bson.M{"activeRental": bson.M{"$exists": false}})
 	if err != nil {
 		return nil, err
 	}
@@ -89,14 +89,14 @@ func (r *VehicleViewRepository) CreateVehicle(id uint64, type_ model.VehicleType
 	defer cancel()
 
 	vehicle := &model.VehicleView{
-		ID:        id,
-		Type:      type_,
-		PositionX: positionX,
-		PositionY: positionY,
-		Battery:   battery,
-		Available: true,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		ID:           id,
+		Type:         type_,
+		PositionX:    positionX,
+		PositionY:    positionY,
+		Battery:      battery,
+		ActiveRental: nil,
+		CreatedAt:    time.Now(),
+		UpdatedAt:    time.Now(),
 	}
 
 	_, err := r.collection.InsertOne(ctx, vehicle)
@@ -128,23 +128,43 @@ func (r *VehicleViewRepository) UpdateVehicle(id uint64, positionX float64, posi
 	return r.GetVehicleByID(id)
 }
 
-func (r *VehicleViewRepository) UpdateVehicleAvailability(id uint64, available bool) (*model.VehicleView, error) {
+func (r *VehicleViewRepository) UpdateActiveRental(rentalID uint64, customerID uint64, vehicleID uint64, vehicleType string, start time.Time, cost int32) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	vehicle := &model.VehicleView{
-		Available: available,
+		ActiveRental: &model.RentalView{
+			ID:          rentalID,
+			CustomerID:  customerID,
+			VehicleID:   vehicleID,
+			VehicleType: vehicleType,
+			Start:       start,
+			Cost:        cost,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+		},
 		UpdatedAt: time.Now(),
 	}
-	filter := bson.M{"_id": id}
+	filter := bson.M{"_id": vehicleID}
 	update := bson.M{"$set": vehicle}
 
 	_, err := r.collection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return r.GetVehicleByID(id)
+	return nil
+}
+
+func (r *VehicleViewRepository) ResetActiveRental(id uint64) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	_, err := r.collection.UpdateOne(ctx, bson.M{"_id": id}, bson.M{
+		"$unset": bson.M{"activeRental": 1},
+	})
+
+	return err
 }
 
 func (r *VehicleViewRepository) DeleteVehicle(id uint64) error {

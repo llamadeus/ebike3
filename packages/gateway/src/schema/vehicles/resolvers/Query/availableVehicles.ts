@@ -27,6 +27,7 @@ export const availableVehicles: NonNullable<QueryResolvers["availableVehicles"]>
     },
     battery: vehicle.battery,
     available: vehicle.available,
+    activeRental: vehicle.activeRental,
     createdAt: vehicle.createdAt,
     updatedAt: vehicle.updatedAt,
   }));

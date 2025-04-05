@@ -31,6 +31,7 @@ export const createVehicle: NonNullable<MutationResolvers["createVehicle"]> = as
     },
     battery: data.battery,
     available: data.available,
+    activeRental: data.activeRental,
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
   };

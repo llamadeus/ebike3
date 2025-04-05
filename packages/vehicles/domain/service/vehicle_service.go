@@ -8,6 +8,7 @@ import (
 	"github.com/llamadeus/ebike3/packages/vehicles/domain/port/in"
 	"github.com/llamadeus/ebike3/packages/vehicles/domain/port/out"
 	"github.com/llamadeus/ebike3/packages/vehicles/infrastructure/micro"
+	"time"
 )
 
 // VehicleService implements the VehicleService interface.
@@ -141,14 +142,25 @@ func (s *VehicleService) UpdateVehicleView(id uint64, positionX float64, positio
 	return nil
 }
 
-// UpdateVehicleViewAvailability updates the availability of the vehicle with the given id.
-func (s *VehicleService) UpdateVehicleViewAvailability(id uint64, available bool) error {
-	_, err := s.viewRepository.UpdateVehicleAvailability(id, available)
+func (s *VehicleService) UpdateVehicleViewActiveRental(rentalID uint64, customerID uint64, vehicleID uint64, vehicleType string, start time.Time, cost int32) error {
+	return s.viewRepository.UpdateActiveRental(rentalID, customerID, vehicleID, vehicleType, start, cost)
+}
+
+func (s *VehicleService) ResetVehicleViewActiveRental(id uint64, rentalID uint64) error {
+	vehicle, err := s.viewRepository.GetVehicleByID(id)
 	if err != nil {
-		return micro.NewInternalServerError(fmt.Sprintf("failed to update vehicle availability: %v", err))
+		return err
 	}
 
-	return nil
+	if vehicle.ActiveRental == nil {
+		return nil
+	}
+
+	if vehicle.ActiveRental.ID != rentalID {
+		return nil
+	}
+
+	return s.viewRepository.ResetActiveRental(id)
 }
 
 // DeleteVehicleView deletes the vehicle with the given id.

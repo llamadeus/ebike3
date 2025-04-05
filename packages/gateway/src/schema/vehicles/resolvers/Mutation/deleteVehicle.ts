@@ -25,6 +25,7 @@ export const deleteVehicle: NonNullable<MutationResolvers["deleteVehicle"]> = as
     },
     battery: data.battery,
     available: data.available,
+    activeRental: data.activeRental,
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
   };

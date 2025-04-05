@@ -84,6 +84,7 @@ func main() {
 	vehicleViewRepository := persistence.NewVehicleViewRepository(mongo.Database(config.Get().MongoDatabase).Collection(config.Get().MongoCollection))
 	vehicleService := service.NewVehicleService(kafka, vehicleRepository, vehicleViewRepository)
 	vehicleEventsProcessor := in.MakeVehicleEventsProcessor(vehicleService)
+	rentalsEventsProcessor := in.MakeRentalEventsProcessor(vehicleService)
 
 	// Configure service
 	mux := http.NewServeMux()
@@ -93,12 +94,19 @@ func main() {
 	mux.HandleFunc("DELETE /vehicles/{id}", in.MakeDeleteVehicleHandler(vehicleService))
 
 	// Start event processor
-	consumer, err := kafka.StartProcessor(events.VehiclesTopic, config.Get().KafkaGroupID, vehicleEventsProcessor)
+	vehicleConsumer, err := kafka.StartProcessor(events.VehiclesTopic, config.Get().KafkaGroupID, vehicleEventsProcessor)
 	if err != nil {
 		slog.Error("failed to start event processor", "error", err)
 		os.Exit(1)
 	}
-	defer consumer.Stop()
+	defer vehicleConsumer.Stop()
+
+	rentalConsumer, err := kafka.StartProcessor(events.RentalsTopic, config.Get().KafkaGroupID, rentalsEventsProcessor)
+	if err != nil {
+		slog.Error("failed to start event processor", "error", err)
+		os.Exit(1)
+	}
+	defer rentalConsumer.Stop()
 
 	if err := micro.Run(mux, serverAddr); err != nil {
 		slog.Error("Failed to run server", "error", err)
