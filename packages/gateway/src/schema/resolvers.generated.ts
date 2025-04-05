@@ -24,13 +24,13 @@ import    { rejectPayment as Mutation_rejectPayment } from './accounting/resolve
 import    { startRental as Mutation_startRental } from './rentals/resolvers/Mutation/startRental';
 import    { stopRental as Mutation_stopRental } from './rentals/resolvers/Mutation/stopRental';
 import    { updateCustomerPosition as Mutation_updateCustomerPosition } from './customers/resolvers/Mutation/updateCustomerPosition';
-import    { Auth } from './auth/resolvers/Auth';
 import    { Customer } from './customers/resolvers/Customer';
 import    { CustomerRental } from './customers/resolvers/CustomerRental';
 import    { Expense } from './accounting/resolvers/Expense';
 import    { Payment } from './accounting/resolvers/Payment';
 import    { Rental } from './rentals/resolvers/Rental';
 import    { Station } from './stations/resolvers/Station';
+import    { User } from './auth/resolvers/User';
 import    { Vec2d } from './base/resolvers/Vec2d';
 import    { Vehicle } from './vehicles/resolvers/Vehicle';
 import    { VehicleRental } from './vehicles/resolvers/VehicleRental';
@@ -38,13 +38,13 @@ import    { VehicleRental } from './vehicles/resolvers/VehicleRental';
       Query: { activeRental: Query_activeRental,auth: Query_auth,availableVehicles: Query_availableVehicles,customers: Query_customers,pastRentals: Query_pastRentals,payments: Query_payments,stations: Query_stations,transactions: Query_transactions,vehicles: Query_vehicles },
       Mutation: { confirmPayment: Mutation_confirmPayment,createPayment: Mutation_createPayment,createStation: Mutation_createStation,createVehicle: Mutation_createVehicle,deletePayment: Mutation_deletePayment,deleteStation: Mutation_deleteStation,deleteVehicle: Mutation_deleteVehicle,login: Mutation_login,logout: Mutation_logout,registerAdmin: Mutation_registerAdmin,registerCustomer: Mutation_registerCustomer,rejectPayment: Mutation_rejectPayment,startRental: Mutation_startRental,stopRental: Mutation_stopRental,updateCustomerPosition: Mutation_updateCustomerPosition },
       
-      Auth: Auth,
-Customer: Customer,
+      Customer: Customer,
 CustomerRental: CustomerRental,
 Expense: Expense,
 Payment: Payment,
 Rental: Rental,
 Station: Station,
+User: User,
 Vec2d: Vec2d,
 Vehicle: Vehicle,
 VehicleRental: VehicleRental

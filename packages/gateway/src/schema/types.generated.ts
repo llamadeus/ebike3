@@ -8,8 +8,8 @@ export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Mayb
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-export type EnumResolverSignature<T, AllowedValues = any> = { [key in keyof T]?: AllowedValues };
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
+export type EnumResolverSignature<T, AllowedValues = any> = { [key in keyof T]?: AllowedValues };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string | number; }
@@ -18,18 +18,6 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
 };
-
-export type Auth = {
-  __typename?: 'Auth';
-  id: Scalars['ID']['output'];
-  lastLogin?: Maybe<Scalars['String']['output']>;
-  role: AuthRole;
-  username: Scalars['String']['output'];
-};
-
-export type AuthRole =
-  | 'ADMIN'
-  | 'CUSTOMER';
 
 export type CreateStationInput = {
   name: Scalars['String']['input'];
@@ -79,10 +67,10 @@ export type Mutation = {
   deletePayment: Payment;
   deleteStation: Station;
   deleteVehicle: Vehicle;
-  login: Auth;
+  login: User;
   logout: Scalars['Boolean']['output'];
-  registerAdmin: Auth;
-  registerCustomer: Auth;
+  registerAdmin: User;
+  registerCustomer: User;
   rejectPayment: Payment;
   startRental: Rental;
   stopRental: Rental;
@@ -179,7 +167,7 @@ export type PaymentStatus =
 export type Query = {
   __typename?: 'Query';
   activeRental?: Maybe<Rental>;
-  auth?: Maybe<Auth>;
+  auth?: Maybe<User>;
   availableVehicles: Array<Vehicle>;
   customers: Array<Customer>;
   pastRentals: Array<Rental>;
@@ -210,6 +198,18 @@ export type Station = {
 };
 
 export type Transaction = Expense | Payment;
+
+export type User = {
+  __typename?: 'User';
+  id: Scalars['ID']['output'];
+  lastLogin?: Maybe<Scalars['String']['output']>;
+  role: UserRole;
+  username: Scalars['String']['output'];
+};
+
+export type UserRole =
+  | 'ADMIN'
+  | 'CUSTOMER';
 
 export type Vec2d = {
   __typename?: 'Vec2d';
@@ -323,14 +323,12 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  Auth: ResolverTypeWrapper<Omit<Auth, 'role'> & { role: ResolversTypes['AuthRole'] }>;
-  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
-  String: ResolverTypeWrapper<Scalars['String']['output']>;
-  AuthRole: ResolverTypeWrapper<'ADMIN' | 'CUSTOMER'>;
   CreateStationInput: CreateStationInput;
+  String: ResolverTypeWrapper<Scalars['String']['output']>;
   CreateVehicleInput: CreateVehicleInput;
   Customer: ResolverTypeWrapper<Omit<Customer, 'activeRental'> & { activeRental?: Maybe<ResolversTypes['CustomerRental']> }>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   CustomerRental: ResolverTypeWrapper<Omit<CustomerRental, 'vehicleType'> & { vehicleType: ResolversTypes['VehicleType'] }>;
   Expense: ResolverTypeWrapper<Omit<Expense, 'customer'> & { customer?: Maybe<ResolversTypes['Customer']> }>;
   Mutation: ResolverTypeWrapper<{}>;
@@ -341,6 +339,8 @@ export type ResolversTypes = {
   Rental: ResolverTypeWrapper<Rental>;
   Station: ResolverTypeWrapper<Station>;
   Transaction: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['Transaction']>;
+  User: ResolverTypeWrapper<Omit<User, 'role'> & { role: ResolversTypes['UserRole'] }>;
+  UserRole: ResolverTypeWrapper<'ADMIN' | 'CUSTOMER'>;
   Vec2d: ResolverTypeWrapper<Vec2d>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   Vec2dInput: Vec2dInput;
@@ -351,13 +351,12 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
-  Auth: Auth;
-  ID: Scalars['ID']['output'];
-  String: Scalars['String']['output'];
   CreateStationInput: CreateStationInput;
+  String: Scalars['String']['output'];
   CreateVehicleInput: CreateVehicleInput;
   Customer: Omit<Customer, 'activeRental'> & { activeRental?: Maybe<ResolversParentTypes['CustomerRental']> };
   Int: Scalars['Int']['output'];
+  ID: Scalars['ID']['output'];
   CustomerRental: CustomerRental;
   Expense: Omit<Expense, 'customer'> & { customer?: Maybe<ResolversParentTypes['Customer']> };
   Mutation: {};
@@ -367,6 +366,7 @@ export type ResolversParentTypes = {
   Rental: Rental;
   Station: Station;
   Transaction: ResolversUnionTypes<ResolversParentTypes>['Transaction'];
+  User: User;
   Vec2d: Vec2d;
   Float: Scalars['Float']['output'];
   Vec2dInput: Vec2dInput;
@@ -381,16 +381,6 @@ export type loggedInDirectiveResolver<Result, Parent, ContextType = ResolverCont
 export type notLoggedInDirectiveArgs = { };
 
 export type notLoggedInDirectiveResolver<Result, Parent, ContextType = ResolverContext, Args = notLoggedInDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
-
-export type AuthResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Auth'] = ResolversParentTypes['Auth']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastLogin?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  role?: Resolver<ResolversTypes['AuthRole'], ParentType, ContextType>;
-  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type AuthRoleResolvers = EnumResolverSignature<{ ADMIN?: any, CUSTOMER?: any }, ResolversTypes['AuthRole']>;
 
 export type CustomerResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Customer'] = ResolversParentTypes['Customer']> = {
   activeRental?: Resolver<Maybe<ResolversTypes['CustomerRental']>, ParentType, ContextType>;
@@ -429,10 +419,10 @@ export type MutationResolvers<ContextType = ResolverContext, ParentType extends 
   deletePayment?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationdeletePaymentArgs, 'id'>>;
   deleteStation?: Resolver<ResolversTypes['Station'], ParentType, ContextType, RequireFields<MutationdeleteStationArgs, 'id'>>;
   deleteVehicle?: Resolver<ResolversTypes['Vehicle'], ParentType, ContextType, RequireFields<MutationdeleteVehicleArgs, 'id'>>;
-  login?: Resolver<ResolversTypes['Auth'], ParentType, ContextType, RequireFields<MutationloginArgs, 'password' | 'username'>>;
+  login?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationloginArgs, 'password' | 'username'>>;
   logout?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  registerAdmin?: Resolver<ResolversTypes['Auth'], ParentType, ContextType, RequireFields<MutationregisterAdminArgs, 'password' | 'username'>>;
-  registerCustomer?: Resolver<ResolversTypes['Auth'], ParentType, ContextType, RequireFields<MutationregisterCustomerArgs, 'password' | 'username'>>;
+  registerAdmin?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationregisterAdminArgs, 'password' | 'username'>>;
+  registerCustomer?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationregisterCustomerArgs, 'password' | 'username'>>;
   rejectPayment?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationrejectPaymentArgs, 'id'>>;
   startRental?: Resolver<ResolversTypes['Rental'], ParentType, ContextType, RequireFields<MutationstartRentalArgs, 'vehicleId'>>;
   stopRental?: Resolver<ResolversTypes['Rental'], ParentType, ContextType, RequireFields<MutationstopRentalArgs, 'id'>>;
@@ -452,7 +442,7 @@ export type PaymentStatusResolvers = EnumResolverSignature<{ CONFIRMED?: any, PE
 
 export type QueryResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   activeRental?: Resolver<Maybe<ResolversTypes['Rental']>, ParentType, ContextType>;
-  auth?: Resolver<Maybe<ResolversTypes['Auth']>, ParentType, ContextType>;
+  auth?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   availableVehicles?: Resolver<Array<ResolversTypes['Vehicle']>, ParentType, ContextType>;
   customers?: Resolver<Array<ResolversTypes['Customer']>, ParentType, ContextType>;
   pastRentals?: Resolver<Array<ResolversTypes['Rental']>, ParentType, ContextType>;
@@ -480,6 +470,16 @@ export type StationResolvers<ContextType = ResolverContext, ParentType extends R
 export type TransactionResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Transaction'] = ResolversParentTypes['Transaction']> = {
   __resolveType?: TypeResolveFn<'Expense' | 'Payment', ParentType, ContextType>;
 };
+
+export type UserResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastLogin?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  role?: Resolver<ResolversTypes['UserRole'], ParentType, ContextType>;
+  username?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type UserRoleResolvers = EnumResolverSignature<{ ADMIN?: any, CUSTOMER?: any }, ResolversTypes['UserRole']>;
 
 export type Vec2dResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Vec2d'] = ResolversParentTypes['Vec2d']> = {
   x?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
@@ -511,8 +511,6 @@ export type VehicleRentalResolvers<ContextType = ResolverContext, ParentType ext
 export type VehicleTypeResolvers = EnumResolverSignature<{ ABIKE?: any, BIKE?: any, EBIKE?: any }, ResolversTypes['VehicleType']>;
 
 export type Resolvers<ContextType = ResolverContext> = {
-  Auth?: AuthResolvers<ContextType>;
-  AuthRole?: AuthRoleResolvers;
   Customer?: CustomerResolvers<ContextType>;
   CustomerRental?: CustomerRentalResolvers<ContextType>;
   Expense?: ExpenseResolvers<ContextType>;
@@ -523,6 +521,8 @@ export type Resolvers<ContextType = ResolverContext> = {
   Rental?: RentalResolvers<ContextType>;
   Station?: StationResolvers<ContextType>;
   Transaction?: TransactionResolvers<ContextType>;
+  User?: UserResolvers<ContextType>;
+  UserRole?: UserRoleResolvers;
   Vec2d?: Vec2dResolvers<ContextType>;
   Vehicle?: VehicleResolvers<ContextType>;
   VehicleRental?: VehicleRentalResolvers<ContextType>;

@@ -1,7 +1,7 @@
 import { sign, verify } from "jsonwebtoken";
 import { z } from "zod";
 import { authSchema } from "~/adapter/in/dto/auth";
-import { AuthRole } from "~/schema/types.generated";
+import { UserRole } from "~/schema/types.generated";
 
 
 /**
@@ -19,7 +19,7 @@ export interface Session {
   /**
    * The role of the user.
    */
-  role: AuthRole;
+  role: UserRole;
   /**
    * The session id.
    */

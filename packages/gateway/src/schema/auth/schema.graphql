@@ -1,28 +1,28 @@
 extend type Query {
   # Auth
-  auth: Auth
+  auth: User
 }
 
 extend type Mutation {
   # Register
-  registerAdmin(username: String!, password: String!): Auth! @notLoggedIn
-  registerCustomer(username: String!, password: String!): Auth! @notLoggedIn
+  registerAdmin(username: String!, password: String!): User! @notLoggedIn
+  registerCustomer(username: String!, password: String!): User! @notLoggedIn
 
   # Login
-  login(username: String!, password: String!): Auth! @notLoggedIn
+  login(username: String!, password: String!): User! @notLoggedIn
 
   # Logout
   logout: Boolean! @loggedIn
 }
 
-type Auth {
+type User {
   id: ID!
   username: String!
-  role: AuthRole!
+  role: UserRole!
   lastLogin: String
 }
 
-enum AuthRole {
+enum UserRole {
   ADMIN
   CUSTOMER
 }
