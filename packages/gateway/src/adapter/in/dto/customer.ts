@@ -13,6 +13,7 @@ export const customerSchema = z.object({
     customerId: z.string(),
     vehicleType: z.enum(["BIKE", "EBIKE", "ABIKE"]),
     start: z.string(),
+    cost: z.number(),
     createdAt: z.string(),
     updatedAt: z.string(),
   }).nullish(),

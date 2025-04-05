@@ -23,4 +23,5 @@ type CustomerRental {
   customerId: ID!
   vehicleType: VehicleType!
   start: String!
+  cost: Int!
 }

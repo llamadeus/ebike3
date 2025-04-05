@@ -53,6 +53,7 @@ export type Customer = {
 
 export type CustomerRental = {
   __typename?: 'CustomerRental';
+  cost: Scalars['Int']['output'];
   customerId: Scalars['ID']['output'];
   id: Scalars['ID']['output'];
   start: Scalars['String']['output'];
@@ -389,6 +390,7 @@ export type CustomerResolvers<ContextType = ResolverContext, ParentType extends 
 };
 
 export type CustomerRentalResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['CustomerRental'] = ResolversParentTypes['CustomerRental']> = {
+  cost?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   customerId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   start?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

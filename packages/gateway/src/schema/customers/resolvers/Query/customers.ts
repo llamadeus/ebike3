@@ -33,6 +33,7 @@ export const customers: NonNullable<QueryResolvers["customers"]> = async (_paren
         customerId: customer.activeRental.customerId,
         vehicleType: customer.activeRental.vehicleType,
         start: customer.activeRental.start,
+        cost: customer.activeRental.cost,
       }
       : null,
     lastLogin: customer.lastLogin,

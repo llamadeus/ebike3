@@ -24,6 +24,7 @@ type RentalDTO struct {
 	CustomerID  string `json:"customerId"`
 	VehicleType string `json:"vehicleType"`
 	Start       string `json:"start"`
+	Cost        int32  `json:"cost"`
 	CreatedAt   string `json:"createdAt"`
 	UpdatedAt   string `json:"updatedAt"`
 }
@@ -58,6 +59,7 @@ func RentalViewToDTO(rental *model.RentalView) *RentalDTO {
 		CustomerID:  IDToDTO(rental.CustomerID),
 		VehicleType: rental.VehicleType,
 		Start:       rental.Start.Format(time.RFC3339),
+		Cost:        rental.Cost,
 		CreatedAt:   rental.CreatedAt.Format(time.RFC3339),
 		UpdatedAt:   rental.UpdatedAt.Format(time.RFC3339),
 	}
