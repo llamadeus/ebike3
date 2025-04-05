@@ -17,6 +17,8 @@ type Config struct {
 
 	KafkaBroker  string `env:"KAFKA_BROKER,required"`
 	KafkaGroupID string `env:"KAFKA_GROUP_ID,required"`
+
+	RedisURI string `env:"REDIS_URI,required"`
 }
 
 var config Config

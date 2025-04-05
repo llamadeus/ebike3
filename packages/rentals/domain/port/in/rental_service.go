@@ -22,4 +22,6 @@ type RentalService interface {
 	UpdateRentalView(id uint64, end time.Time) error
 
 	AddExpenseToRental(rentalID uint64, amount int32) error
+
+	ChargeActiveRental(ctx context.Context, rentalID uint64) error
 }

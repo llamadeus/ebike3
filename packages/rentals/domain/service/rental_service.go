@@ -6,18 +6,22 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"github.com/hibiken/asynq"
 	"github.com/llamadeus/ebike3/packages/rentals/adapter/out/dto"
 	"github.com/llamadeus/ebike3/packages/rentals/domain/constants"
 	"github.com/llamadeus/ebike3/packages/rentals/domain/events"
 	"github.com/llamadeus/ebike3/packages/rentals/domain/model"
 	"github.com/llamadeus/ebike3/packages/rentals/domain/port/in"
 	"github.com/llamadeus/ebike3/packages/rentals/domain/port/out"
+	"github.com/llamadeus/ebike3/packages/rentals/domain/tasks"
 	"github.com/llamadeus/ebike3/packages/rentals/infrastructure/micro"
+	"log/slog"
 	"time"
 )
 
 type RentalService struct {
 	kafka          micro.Kafka
+	asynq          *asynq.Client
 	repository     out.RentalRepository
 	viewRepository out.RentalViewRepository
 	vehicleService in.VehicleService
@@ -25,9 +29,10 @@ type RentalService struct {
 
 var _ in.RentalService = (*RentalService)(nil)
 
-func NewRentalService(kafka micro.Kafka, repository out.RentalRepository, viewRepository out.RentalViewRepository, vehicleService in.VehicleService) *RentalService {
+func NewRentalService(kafka micro.Kafka, asynq *asynq.Client, repository out.RentalRepository, viewRepository out.RentalViewRepository, vehicleService in.VehicleService) *RentalService {
 	return &RentalService{
 		kafka:          kafka,
+		asynq:          asynq,
 		repository:     repository,
 		viewRepository: viewRepository,
 		vehicleService: vehicleService,
@@ -108,6 +113,15 @@ func (s *RentalService) StartRental(ctx context.Context, customerID uint64, vehi
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to finalize preliminary expense: %v", err))
 	}
 
+	task, err := tasks.NewRentalsChargeActiveRentalTask(dto.IDToDTO(rental.ID))
+	if err != nil {
+		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to create charge active rental task: %v", err))
+	}
+	_, err = s.asynq.Enqueue(task, asynq.ProcessIn(60*time.Second))
+	if err != nil {
+		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to enqueue charge active rental task: %v", err))
+	}
+
 	event := micro.NewEvent(events.RentalsRentalStartedEventType, events.RentalStartedEvent{
 		ID:          dto.IDToDTO(rental.ID),
 		CustomerID:  dto.IDToDTO(rental.CustomerID),
@@ -170,6 +184,56 @@ func (s *RentalService) AddExpenseToRental(rentalID uint64, amount int32) error 
 	return s.viewRepository.AddExpense(rentalID, amount)
 }
 
+func (s *RentalService) ChargeActiveRental(ctx context.Context, rentalID uint64) error {
+	start := time.Now()
+	rental, err := s.repository.Get(rentalID)
+	if err != nil {
+		return fmt.Errorf("failed to get rental: %v", err)
+	}
+	if rental == nil {
+		return fmt.Errorf("rental with id %d not found", rentalID)
+	}
+
+	if rental.End.Valid {
+		// Rental has already ended, nothing to do
+		return nil
+	}
+
+	vehicle, err := s.vehicleService.GetVehicleByID(rental.VehicleID)
+	if err != nil {
+		return fmt.Errorf("failed to get vehicle: %v", err)
+	}
+	if vehicle == nil {
+		return fmt.Errorf("vehicle with id %d not found", rental.VehicleID)
+	}
+
+	// Create a new expense for the rental (PUT /expenses to accounting service)
+	err = s.createExpense(ctx, rental.CustomerID, rental.ID, s.getRentalFeePerMinute(vehicle.Type))
+	if err != nil {
+		return err
+	}
+
+	// Queue a new task to charge the rental in (60 - delta) seconds, where `delta = time.Now() - start`
+	delta := time.Now().Sub(start)
+	nextCharge := time.Duration(60-delta.Seconds()) * time.Second
+	slog.Info(
+		"queueing task to charge rental",
+		"rentalId", rental.ID,
+		"nextCharge", nextCharge,
+	)
+
+	task, err := tasks.NewRentalsChargeActiveRentalTask(dto.IDToDTO(rental.ID))
+	if err != nil {
+		return err
+	}
+	_, err = s.asynq.Enqueue(task, asynq.ProcessIn(nextCharge))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *RentalService) getUnblockingFee(vehicleType model.VehicleType) int32 {
 	switch vehicleType {
 	case model.VehicleTypeBike:
@@ -183,11 +247,50 @@ func (s *RentalService) getUnblockingFee(vehicleType model.VehicleType) int32 {
 	return 0
 }
 
+func (s *RentalService) getRentalFeePerMinute(vehicleType model.VehicleType) int32 {
+	switch vehicleType {
+	case model.VehicleTypeBike:
+		return constants.RentalFeePerMinuteBike
+	case model.VehicleTypeEBike:
+		return constants.RentalFeePerMinuteEBike
+	case model.VehicleTypeABike:
+		return constants.RentalFeePerMinuteABike
+	}
+
+	return 0
+}
+
+func (s *RentalService) createExpense(ctx context.Context, customerID uint64, rentalID uint64, amount int32) error {
+	type expenseInput struct {
+		CustomerID string `json:"customerId"`
+		RentalID   string `json:"rentalId"`
+		Amount     int32  `json:"amount"`
+	}
+
+	var err error
+
+	for i := 0; i < 5; i++ {
+		_, err = micro.Invoke[expenseInput, any](ctx, "PUT accounting-service:5001/expenses", nil, expenseInput{
+			CustomerID: dto.IDToDTO(customerID),
+			RentalID:   dto.IDToDTO(rentalID),
+			Amount:     amount,
+		})
+		if err == nil {
+			return nil
+		}
+
+		// Sleep for an increasing amount of time before retrying
+		time.Sleep(time.Second * time.Duration(i+1))
+	}
+
+	return err
+}
+
 func (s *RentalService) createPreliminaryExpense(ctx context.Context, customerID uint64, amount int32) (string, error) {
 	type preliminaryExpenseInput struct {
-		InquiryID  string `json:"inquiryId" validate:"required"`
-		CustomerID string `json:"customerId" validate:"required"`
-		Amount     int32  `json:"amount" validate:"required"`
+		InquiryID  string `json:"inquiryId"`
+		CustomerID string `json:"customerId"`
+		Amount     int32  `json:"amount"`
 	}
 
 	type preliminaryExpenseDTO struct {
@@ -203,6 +306,16 @@ func (s *RentalService) createPreliminaryExpense(ctx context.Context, customerID
 	if err := binary.Read(rand.Reader, binary.BigEndian, &inquiryID); err != nil {
 		return "", err
 	}
+
+	// Set highest bit of inquiry id to 0 to prevent Postgres issues
+	inquiryID = inquiryID &^ (1 << 63)
+
+	slog.Info(
+		"creating preliminary expense",
+		"inquiryId", inquiryID,
+		"customerId", customerID,
+		"amount", amount,
+	)
 
 	var preliminaryExpense preliminaryExpenseDTO
 	var err error

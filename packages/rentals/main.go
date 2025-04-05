@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/hibiken/asynq"
 	"github.com/llamadeus/ebike3/packages/rentals/adapter/in"
 	"github.com/llamadeus/ebike3/packages/rentals/adapter/out/persistence"
 	"github.com/llamadeus/ebike3/packages/rentals/domain/events"
@@ -79,13 +80,17 @@ func main() {
 	}
 	defer kafka.Close()
 
+	// Configure asynq
+	asynqClient := asynq.NewClient(asynq.RedisClientOpt{Addr: config.Get().RedisURI})
+	defer asynqClient.Close()
+
 	// Configure services
 	vehicleViewRepository := persistence.NewVehicleViewRepository(mongo.Database(config.Get().MongoDatabase).Collection("vehicles"))
 	vehicleService := service.NewVehicleService(vehicleViewRepository)
 
 	rentalRepository := persistence.NewRentalRepository(db, snowflake)
 	rentalViewRepository := persistence.NewRentalViewRepository(mongo.Database(config.Get().MongoDatabase).Collection(config.Get().MongoCollection))
-	rentalService := service.NewRentalService(kafka, rentalRepository, rentalViewRepository, vehicleService)
+	rentalService := service.NewRentalService(kafka, asynqClient, rentalRepository, rentalViewRepository, vehicleService)
 	rentalEventsProcessor := in.MakeRentalEventsProcessor(rentalService)
 	vehicleEventsProcessor := in.MakeVehicleEventsProcessor(vehicleService)
 	accountingEventsProcessor := in.MakeAccountingEventsProcessor(rentalService)
@@ -119,8 +124,34 @@ func main() {
 	}
 	defer accountingConsumer.Stop()
 
+	// Start task processor
+	asyncServer := asynq.NewServer(
+		asynq.RedisClientOpt{Addr: config.Get().RedisURI},
+		asynq.Config{},
+	)
+	asyncMux := asynq.NewServeMux()
+	in.MakeRentalTasksProcessor(asyncMux, rentalService)
+
+	err = asyncServer.Start(asyncMux)
+	if err != nil {
+		slog.Error("failed to start task processor", "error", err)
+		os.Exit(1)
+	}
+
+	//task, err := tasks.NewRentalsChargeActiveRentalTask(1234)
+	//if err != nil {
+	//	log.Fatalf("could not create task: %v", err)
+	//}
+	//info, err := client.Enqueue(task, asynq.ProcessIn(10*time.Second))
+	//if err != nil {
+	//	log.Fatalf("could not schedule task: %v", err)
+	//}
+	//log.Printf("enqueued task: id=%s queue=%s", info.ID, info.Queue)
+
 	if err := micro.Run(mux, serverAddr); err != nil {
 		slog.Error("Failed to run server", "error", err)
 		os.Exit(1)
 	}
+
+	asyncServer.Shutdown()
 }
