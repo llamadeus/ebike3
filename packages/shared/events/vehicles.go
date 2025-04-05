@@ -1,11 +1,10 @@
 package events
 
 const (
-	VehiclesTopic                               = "vehicles"
-	VehiclesVehicleCreatedEventType             = "VehicleCreated"
-	VehiclesVehicleUpdatedEventType             = "VehicleUpdated"
-	VehiclesVehicleAvailabilityUpdatedEventType = "VehicleAvailabilityUpdated"
-	VehiclesVehicleDeletedEventType             = "VehicleDeleted"
+	VehiclesTopic                   = "vehicles"
+	VehiclesVehicleCreatedEventType = "VehicleCreated"
+	VehiclesVehicleUpdatedEventType = "VehicleUpdated"
+	VehiclesVehicleDeletedEventType = "VehicleDeleted"
 )
 
 type VehicleCreatedEvent struct {
@@ -22,11 +21,6 @@ type VehicleUpdatedEvent struct {
 	PositionX float64 `json:"positionX"`
 	PositionY float64 `json:"positionY"`
 	Battery   float64 `json:"battery"`
-}
-
-type VehicleAvailabilityUpdatedEvent struct {
-	ID        string `json:"id"`
-	Available bool   `json:"available"`
 }
 
 type VehicleDeletedEvent struct {

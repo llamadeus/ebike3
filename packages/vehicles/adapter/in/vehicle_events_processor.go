@@ -49,20 +49,6 @@ func MakeVehicleEventsProcessor(vehicleService in.VehicleService) *micro.EventsP
 
 			return vehicleService.UpdateVehicleView(id, payload.PositionX, payload.PositionY, payload.Battery)
 		}),
-		events.VehiclesVehicleAvailabilityUpdatedEventType: micro.NewEventHandler(func(payload events.VehicleAvailabilityUpdatedEvent) error {
-			slog.Info(
-				"vehicle availability updated",
-				"id", payload.ID,
-				"available", payload.Available,
-			)
-
-			id, err := dto.IDFromDTO(payload.ID)
-			if err != nil {
-				return err
-			}
-
-			return vehicleService.UpdateVehicleViewAvailability(id, payload.Available)
-		}),
 		events.VehiclesVehicleDeletedEventType: micro.NewEventHandler(func(payload events.VehicleDeletedEvent) error {
 			slog.Info(
 				"vehicle deleted",
