@@ -19,8 +19,8 @@ type CustomerViewRepository interface {
 	// UpdateCustomerViewPosition updates the customer position with the given id.
 	UpdateCustomerViewPosition(id uint64, positionX float64, positionY float64) error
 
-	// UpdateCustomerViewCreditBalance updates the customer credit with the given id.
-	UpdateCustomerViewCreditBalance(id uint64, creditBalance int32) error
+	// UpdateCustomerViewCreditBalance adds the given amount to the customer credit with the given id.
+	UpdateCustomerViewCreditBalance(id uint64, amount int32) error
 
 	// UpdateCustomerViewLastLogin updates the customer last login with the given id.
 	UpdateCustomerViewLastLogin(id uint64, lastLogin time.Time) error

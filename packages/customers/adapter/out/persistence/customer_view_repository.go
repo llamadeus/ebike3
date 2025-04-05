@@ -100,18 +100,14 @@ func (r *CustomerViewRepository) UpdateCustomerViewPosition(id uint64, positionX
 	return nil
 }
 
-func (r *CustomerViewRepository) UpdateCustomerViewCreditBalance(id uint64, creditBalance int32) error {
+func (r *CustomerViewRepository) UpdateCustomerViewCreditBalance(id uint64, amount int32) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	customer := &model.CustomerView{
-		CreditBalance: creditBalance,
-		UpdatedAt:     time.Now(),
-	}
-	filter := bson.M{"_id": id}
-	update := bson.M{"$set": customer}
-
-	_, err := r.collection.UpdateOne(ctx, filter, update)
+	_, err := r.collection.UpdateOne(ctx, bson.M{"_id": id}, bson.M{
+		"$inc": bson.M{"creditBalance": amount},
+		"$set": bson.M{"updatedAt": time.Now()},
+	})
 	if err != nil {
 		return err
 	}
