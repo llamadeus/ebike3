@@ -59,7 +59,7 @@ func (r *RentalViewRepository) GetPastRentalsByCustomerID(customerID uint64) ([]
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	cursor, err := r.collection.Find(ctx, bson.M{"customerId": customerID, "end": bson.M{"$exists": false}})
+	cursor, err := r.collection.Find(ctx, bson.M{"customerId": customerID, "end": bson.M{"$exists": true}})
 	if err != nil {
 		return nil, err
 	}
