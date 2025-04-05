@@ -41,7 +41,7 @@ func (p *producer) Send(topic string, key string, event any) error {
 	}
 
 	// Send the message
-	partition, offset, err := p.producer.SendMessage(&sarama.ProducerMessage{
+	_, _, err = p.producer.SendMessage(&sarama.ProducerMessage{
 		Topic: topic,
 		Key:   sarama.StringEncoder(key),
 		Value: sarama.ByteEncoder(data),
@@ -53,8 +53,7 @@ func (p *producer) Send(topic string, key string, event any) error {
 	slog.Info(
 		"sent message to kafka",
 		"topic", topic,
-		"partition", partition,
-		"offset", offset,
+		"payload", string(data),
 	)
 
 	return nil
