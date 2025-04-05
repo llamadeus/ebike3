@@ -141,8 +141,8 @@ func (r *CustomerViewRepository) UpdateCustomerViewActiveRental(customerID uint6
 	customer := &model.CustomerView{
 		ActiveRental: &model.RentalView{
 			ID:          rentalID,
-			VehicleID:   vehicleID,
 			CustomerID:  customerID,
+			VehicleID:   vehicleID,
 			VehicleType: vehicleType,
 			Start:       start,
 			Cost:        cost,

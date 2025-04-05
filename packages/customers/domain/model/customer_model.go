@@ -19,8 +19,8 @@ type CustomerView struct {
 
 type RentalView struct {
 	ID          uint64    `bson:"_id,omitempty"`
-	VehicleID   uint64    `bson:"vehicleId,omitempty"`
 	CustomerID  uint64    `bson:"customerId,omitempty"`
+	VehicleID   uint64    `bson:"vehicleId,omitempty"`
 	VehicleType string    `bson:"vehicleType,omitempty"`
 	Start       time.Time `bson:"start,omitempty"`
 	Cost        int32     `bson:"cost,omitempty"`
