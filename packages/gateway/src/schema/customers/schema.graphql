@@ -1,6 +1,7 @@
 extend type Query {
   # Admin
   customers: [Customer!]!
+  customer(id: ID!): Customer
 }
 
 extend type Mutation {

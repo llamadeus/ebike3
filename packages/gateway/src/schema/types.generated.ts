@@ -169,6 +169,7 @@ export type Query = {
   activeRental?: Maybe<Rental>;
   auth?: Maybe<User>;
   availableVehicles: Array<Vehicle>;
+  customer?: Maybe<Customer>;
   customers: Array<Customer>;
   pastRentals: Array<Rental>;
   payments: Array<Payment>;
@@ -176,6 +177,11 @@ export type Query = {
   transactions: Array<Transaction>;
   users: Array<User>;
   vehicles: Array<Vehicle>;
+};
+
+
+export type QuerycustomerArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -445,6 +451,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   activeRental?: Resolver<Maybe<ResolversTypes['Rental']>, ParentType, ContextType>;
   auth?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   availableVehicles?: Resolver<Array<ResolversTypes['Vehicle']>, ParentType, ContextType>;
+  customer?: Resolver<Maybe<ResolversTypes['Customer']>, ParentType, ContextType, RequireFields<QuerycustomerArgs, 'id'>>;
   customers?: Resolver<Array<ResolversTypes['Customer']>, ParentType, ContextType>;
   pastRentals?: Resolver<Array<ResolversTypes['Rental']>, ParentType, ContextType>;
   payments?: Resolver<Array<ResolversTypes['Payment']>, ParentType, ContextType, Partial<QuerypaymentsArgs>>;
