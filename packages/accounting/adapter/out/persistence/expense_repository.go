@@ -34,6 +34,19 @@ func (r *ExpenseRepository) Get(id uint64) (*model.Expense, error) {
 	return &expense, nil
 }
 
+func (r *ExpenseRepository) GetWithTx(tx *sqlx.Tx, id uint64) (*model.Expense, error) {
+	var expense model.Expense
+	err := tx.Get(&expense, "SELECT * FROM expenses WHERE id=$1 LIMIT 1", id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &expense, nil
+}
+
 func (r *ExpenseRepository) GetAll() ([]*model.Expense, error) {
 	var expenses []*model.Expense
 	err := r.db.Select(&expenses, "SELECT * FROM expenses")
@@ -82,5 +95,5 @@ func (r *ExpenseRepository) CreateWithTx(tx *sqlx.Tx, customerID uint64, rentalI
 		return nil, err
 	}
 
-	return r.Get(id)
+	return r.GetWithTx(tx, id)
 }
