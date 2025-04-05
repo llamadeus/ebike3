@@ -96,6 +96,11 @@ func (s *RentalService) StartRental(ctx context.Context, customerID uint64, vehi
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to create rental: %v", err))
 	}
 
+	_, err = s.viewRepository.Create(rental.ID, customerID, vehicleID, vehicle.Type, rental.Start)
+	if err != nil {
+		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to create rental view: %v", err))
+	}
+
 	err = s.finalizePreliminaryExpense(ctx, preliminaryExpenseID, rental.ID)
 	if err != nil {
 		// TODO: Maybe we should delete the rental right here
