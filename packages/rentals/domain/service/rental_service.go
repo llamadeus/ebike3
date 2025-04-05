@@ -148,6 +148,10 @@ func (s *RentalService) StopRental(id uint64, customerID uint64) (*model.Rental,
 		return nil, micro.NewUnauthorizedError(fmt.Sprintf("customer %d not authorized to stop rental %d", customerID, id))
 	}
 
+	if rental.End.Valid {
+		return nil, micro.NewBadRequestError("rental already ended")
+	}
+
 	stopped, err := s.repository.StopRental(id)
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to stop rental: %v", err))
