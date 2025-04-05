@@ -88,7 +88,5 @@ func MakeRentalEventsProcessor(customerService in.CustomerService) *micro.Events
 
 			return customerService.UpdateCustomerViewActiveRental(customerID, rentalID, vehicleID, payload.VehicleType, payload.Start, payload.Cost)
 		}),
-
-		// TODO: Handle rental tick event to decrease credit balance
 	})
 }
