@@ -6,7 +6,7 @@ export const rentalSchema = z.object({
   customerId: z.string(),
   vehicleId: z.string(),
   start: z.string(),
-  end: z.string(),
+  end: z.string().nullable(),
   cost: z.number(),
   createdAt: z.string(),
   updatedAt: z.string(),
