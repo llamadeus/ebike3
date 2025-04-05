@@ -146,7 +146,7 @@ func (s *RentalService) StopRental(id uint64, customerID uint64) (*model.Rental,
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to send kafka event: %v", err))
 	}
 
-	return nil, nil
+	return stopped, nil
 }
 
 func (s *RentalService) CreateRentalView(id uint64, customerID uint64, vehicleID uint64, vehicleType model.VehicleType, start time.Time) error {
