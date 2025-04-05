@@ -109,6 +109,17 @@ func Invoke[TInput any, TOutput any](ctx context.Context, endpoint string, reque
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return output, err
+		}
+
+		slog.Error(
+			"failed to invoke endpoint",
+			"endpoint", endpoint,
+			"status", resp.Status,
+			"body", string(body),
+		)
 		return output, &InvokeError{resp.StatusCode, resp.Status}
 	}
 
