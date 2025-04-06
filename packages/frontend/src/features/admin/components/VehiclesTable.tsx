@@ -81,8 +81,8 @@ export function VehiclesTable(props: Props) {
   return (
     <Table>
       <TableCaption>
-        {sorted.length > 0 && "A list of registered vehicles"}
-        {sorted.length === 0 && "No vehicles registered so far"}
+        {sorted.length > 0 && "A list of vehicles"}
+        {sorted.length === 0 && "No vehicles created so far"}
       </TableCaption>
       <TableHeader>
         <TableRow>
