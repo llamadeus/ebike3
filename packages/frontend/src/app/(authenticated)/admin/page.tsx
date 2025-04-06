@@ -6,8 +6,10 @@ import { Section } from "~/components/Section";
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { CreateStationButton } from "~/features/admin/components/CreateStationButton";
 import { CreateVehicleButton } from "~/features/admin/components/CreateVehicleButton";
 import { PaymentsTable } from "~/features/admin/components/PaymentsTable";
+import { StationsTable } from "~/features/admin/components/StationsTable";
 import { UsersTable } from "~/features/admin/components/UsersTable";
 import { VehiclesTable } from "~/features/admin/components/VehiclesTable";
 import { LogoutButton } from "~/features/auth/components/LogoutButton";
@@ -28,6 +30,15 @@ const queryAdminViewDocument = graphql(`
       role
       username
       lastLogin
+    }
+    stations {
+      id
+      name
+      position {
+        x
+        y
+      }
+      createdAt
     }
     vehicles {
       id
@@ -97,8 +108,11 @@ export default function Admin() {
         <CardDescription>Welcome to the admin panel, <b>{data.auth.username}</b>.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-8">
-        <Tabs defaultValue="vehicles">
+        <Tabs defaultValue="stations">
           <TabsList>
+            <TabsTrigger value="stations">
+              Stations
+            </TabsTrigger>
             <TabsTrigger value="vehicles">
               Vehicles
               {rentedVehicles.length > 0 && (
@@ -119,6 +133,12 @@ export default function Admin() {
           </TabsList>
 
           <div className="h-px mt-4 mb-8 -mx-4 bg-border"></div>
+
+          <TabsContent value="stations">
+            <Section caption="Stations" right={<CreateStationButton/>}>
+              <StationsTable stations={data.stations}/>
+            </Section>
+          </TabsContent>
 
           <TabsContent value="vehicles">
             <Section caption="Vehicles" right={<CreateVehicleButton/>}>
