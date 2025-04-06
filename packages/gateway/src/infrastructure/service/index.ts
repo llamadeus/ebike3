@@ -42,6 +42,8 @@ const SERVICE_MAP: Record<Service, string> = {
   rentals: "http://rentals-service:5001",
 };
 
+const MAX_RETRIES = 10;
+
 export async function invokeService<TOutput extends z.ZodTypeAny>(
   service: Service,
   options: Options<TOutput>,
@@ -52,16 +54,35 @@ export async function invokeService<TOutput extends z.ZodTypeAny>(
   }
 
   const url = new URL(endpoint, SERVICE_MAP[service]);
-  const response = await fetch(url, {
-    method: method,
-    headers: {
-      ...options.headers,
-      "Content-Type": "application/json",
-    },
-    body: method !== "GET" && "input" in options
-      ? JSON.stringify(options.input)
-      : undefined,
-  });
+  let response: Response | undefined = undefined;
+  let error: unknown = new Error("Unknown error");
+
+  for (let i = 0; i < MAX_RETRIES; i++) {
+    try {
+      response = await fetch(url, {
+        method: method,
+        headers: {
+          ...options.headers,
+          "Content-Type": "application/json",
+        },
+        body: method !== "GET" && "input" in options
+          ? JSON.stringify(options.input)
+          : undefined,
+      });
+      break;
+    }
+    catch (err) {
+      error = err;
+
+      if (i < MAX_RETRIES - 1) {
+        await new Promise(resolve => setTimeout(resolve, 500 * (i + 1)));
+      }
+    }
+  }
+
+  if (typeof response == "undefined") {
+    throw error;
+  }
 
   let data: Json;
   try {
