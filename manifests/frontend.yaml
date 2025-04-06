@@ -20,6 +20,11 @@ spec:
           imagePullPolicy: Never
           ports:
             - containerPort: 3000
+          env:
+            - name: GRAPHQL_ENDPOINT_INTERNAL
+              value: http://gateway-service:4000/graphql
+            - name: GRAPHQL_ENDPOINT_EXTERNAL
+              value: http://localhost:4000/graphql
 ---
 apiVersion: v1
 kind: Service

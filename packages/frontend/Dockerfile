@@ -27,6 +27,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 RUN bun run build
+#RUN sed -i -e 's/\(process\.env\.\)PORT/\1APP_PORT/g' -e 's/\(process\.env\.\)HOSTNAME/\1APP_HOSTNAME/g' .next/standalone/server.js
 
 #################################
 # STEP 3 ~ Run production build #
@@ -46,7 +47,12 @@ RUN mkdir .next
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+#COPY --from=builder /app/.next/standalone ./
+#COPY --from=builder /app/.next/static ./.next/static
 
-CMD ["bun", "server.js"]
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
+
+#CMD ["bun", "server.js"]
+CMD ["bun", "run", "start", "--hostname", "0.0.0.0"]
