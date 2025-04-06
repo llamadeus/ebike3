@@ -200,6 +200,7 @@ export type Rental = {
 
 export type Station = {
   __typename?: 'Station';
+  createdAt: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   position: Vec2d;
@@ -472,6 +473,7 @@ export type RentalResolvers<ContextType = ResolverContext, ParentType extends Re
 };
 
 export type StationResolvers<ContextType = ResolverContext, ParentType extends ResolversParentTypes['Station'] = ResolversParentTypes['Station']> = {
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   position?: Resolver<ResolversTypes['Vec2d'], ParentType, ContextType>;

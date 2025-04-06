@@ -13,6 +13,7 @@ type Station {
   id: ID!
   name: String!
   position: Vec2d!
+  createdAt: String!
 }
 
 input CreateStationInput {
