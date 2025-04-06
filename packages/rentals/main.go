@@ -138,16 +138,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	//task, err := tasks.NewRentalsChargeActiveRentalTask(1234)
-	//if err != nil {
-	//	log.Fatalf("could not create task: %v", err)
-	//}
-	//info, err := client.Enqueue(task, asynq.ProcessIn(10*time.Second))
-	//if err != nil {
-	//	log.Fatalf("could not schedule task: %v", err)
-	//}
-	//log.Printf("enqueued task: id=%s queue=%s", info.ID, info.Queue)
-
 	if err := micro.Run(mux, serverAddr); err != nil {
 		slog.Error("Failed to run server", "error", err)
 		os.Exit(1)
