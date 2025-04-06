@@ -174,6 +174,7 @@ export type Query = {
   customers: Array<Customer>;
   pastRentals: Array<Rental>;
   payments: Array<Payment>;
+  position: Vec2d;
   stations: Array<Station>;
   transactions: Array<Transaction>;
   users: Array<User>;
@@ -458,6 +459,7 @@ export type QueryResolvers<ContextType = ResolverContext, ParentType extends Res
   customers?: Resolver<Array<ResolversTypes['Customer']>, ParentType, ContextType>;
   pastRentals?: Resolver<Array<ResolversTypes['Rental']>, ParentType, ContextType>;
   payments?: Resolver<Array<ResolversTypes['Payment']>, ParentType, ContextType, Partial<QuerypaymentsArgs>>;
+  position?: Resolver<ResolversTypes['Vec2d'], ParentType, ContextType>;
   stations?: Resolver<Array<ResolversTypes['Station']>, ParentType, ContextType>;
   transactions?: Resolver<Array<ResolversTypes['Transaction']>, ParentType, ContextType>;
   users?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;

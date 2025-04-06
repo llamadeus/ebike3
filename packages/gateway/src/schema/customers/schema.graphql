@@ -2,6 +2,9 @@ extend type Query {
   # Admin
   customers: [Customer!]!
   customer(id: ID!): Customer
+
+  # Customer
+  position: Vec2d!
 }
 
 extend type Mutation {
