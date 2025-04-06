@@ -40,6 +40,7 @@ const queryCustomerViewDocument = graphql(`
     }
     availableVehicles {
       id
+      type
       battery
       position {
         x

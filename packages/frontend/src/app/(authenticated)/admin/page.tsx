@@ -42,6 +42,7 @@ const queryAdminViewDocument = graphql(`
     }
     vehicles {
       id
+      type
       position {
         x
         y

@@ -13,7 +13,7 @@ import { errorMessage } from "~/utils/error";
 import { isNotNullish } from "~/utils/value";
 
 
-type VehicleType = Pick<Vehicle, "id" | "battery" | "position">;
+type VehicleType = Pick<Vehicle, "id" | "type" | "battery" | "position">;
 
 interface Props {
   /**
@@ -53,6 +53,7 @@ export function StartRental(props: Props) {
       <TableHeader>
         <TableRow>
           <TableHead className="max-w-24">#</TableHead>
+          <TableHead>Type</TableHead>
           <TableHead>Position</TableHead>
           <TableHead>Details</TableHead>
           <TableHead></TableHead>
@@ -62,6 +63,11 @@ export function StartRental(props: Props) {
         {props.vehicles.map((vehicle) => (
           <TableRow key={vehicle.id}>
             <TableCell className="font-medium">{vehicle.id}</TableCell>
+            <TableCell>
+              {vehicle.type === "BIKE" && "Bike"}
+              {vehicle.type === "EBIKE" && "E-Bike"}
+              {vehicle.type === "ABIKE" && "A-Bike"}
+            </TableCell>
             <TableCell>
               <PositionBadge position={vehicle.position}/>
             </TableCell>

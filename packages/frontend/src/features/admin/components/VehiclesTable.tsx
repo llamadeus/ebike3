@@ -29,7 +29,7 @@ import { errorMessage } from "~/utils/error";
 import { isNotNullish, isNullish } from "~/utils/value";
 
 
-type VehicleType = Pick<Vehicle, "id" | "position" | "battery" | "createdAt"> & {
+type VehicleType = Pick<Vehicle, "id" | "type" | "position" | "battery" | "createdAt"> & {
   activeRental?: Maybe<Pick<NonNullish<Vehicle["activeRental"]>, "id" | "start" | "customerId">>;
 };
 
@@ -87,6 +87,7 @@ export function VehiclesTable(props: Props) {
       <TableHeader>
         <TableRow>
           <TableHead className="max-w-24">#</TableHead>
+          <TableHead>Type</TableHead>
           <TableHead>Position</TableHead>
           <TableHead>Details</TableHead>
           <TableHead>Active rental</TableHead>
@@ -98,6 +99,11 @@ export function VehiclesTable(props: Props) {
         {sorted.map((vehicle) => (
           <TableRow key={vehicle.id}>
             <TableCell className="font-medium">{vehicle.id}</TableCell>
+            <TableCell>
+              {vehicle.type === "BIKE" && "Bike"}
+              {vehicle.type === "EBIKE" && "E-Bike"}
+              {vehicle.type === "ABIKE" && "A-Bike"}
+            </TableCell>
             <TableCell>
               <PositionBadge position={vehicle.position}/>
             </TableCell>
