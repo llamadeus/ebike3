@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useQuery } from "urql";
+import { PositionBadge } from "~/components/PositionBadge";
 import { Section } from "~/components/Section";
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
@@ -26,6 +27,10 @@ const queryCustomerViewDocument = graphql(`
       lastLogin
     }
     creditBalance
+    position {
+      x
+      y
+    }
     activeRental {
       id
       start
@@ -91,6 +96,7 @@ export default function Customer() {
             ? "text-destructive-foreground"
             : "text-foreground"}
         >{formatCurrency(data.creditBalance)}</b>.
+          Your position: <PositionBadge position={data.position} className="inline-flex"/>.
         </CardDescription>
       </CardHeader>
 
