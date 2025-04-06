@@ -113,11 +113,13 @@ func (s *RentalService) StartRental(ctx context.Context, customerID uint64, vehi
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to finalize preliminary expense: %v", err))
 	}
 
+	delta := time.Now().Sub(rental.Start)
+	nextCharge := time.Duration(60-delta.Seconds()) * time.Second
 	task, err := tasks.NewRentalsChargeActiveRentalTask(dto.IDToDTO(rental.ID))
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to create charge active rental task: %v", err))
 	}
-	_, err = s.asynq.Enqueue(task, asynq.ProcessIn(60*time.Second))
+	_, err = s.asynq.Enqueue(task, asynq.ProcessIn(nextCharge))
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to enqueue charge active rental task: %v", err))
 	}
