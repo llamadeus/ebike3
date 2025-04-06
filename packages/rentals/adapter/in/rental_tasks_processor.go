@@ -28,6 +28,6 @@ func MakeRentalTasksProcessor(mux *asynq.ServeMux, rentalService in.RentalServic
 			return err
 		}
 
-		return rentalService.ChargeActiveRental(ctx, rentalID)
+		return rentalService.ChargeActiveRental(ctx, rentalID, payload.Timestamp)
 	})
 }

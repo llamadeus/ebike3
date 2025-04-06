@@ -113,13 +113,12 @@ func (s *RentalService) StartRental(ctx context.Context, customerID uint64, vehi
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to finalize preliminary expense: %v", err))
 	}
 
-	delta := time.Now().Sub(rental.Start)
-	nextCharge := time.Duration(60-delta.Seconds()) * time.Second
-	task, err := tasks.NewRentalsChargeActiveRentalTask(dto.IDToDTO(rental.ID))
+	nextCharge := rental.Start.Add(time.Minute)
+	task, err := tasks.NewRentalsChargeActiveRentalTask(dto.IDToDTO(rental.ID), nextCharge)
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to create charge active rental task: %v", err))
 	}
-	_, err = s.asynq.Enqueue(task, asynq.ProcessIn(nextCharge))
+	_, err = s.asynq.Enqueue(task, asynq.ProcessAt(nextCharge))
 	if err != nil {
 		return nil, micro.NewInternalServerError(fmt.Sprintf("failed to enqueue charge active rental task: %v", err))
 	}
@@ -208,8 +207,7 @@ func (s *RentalService) AddExpenseToRental(rentalID uint64, amount int32) error 
 	return nil
 }
 
-func (s *RentalService) ChargeActiveRental(ctx context.Context, rentalID uint64) error {
-	start := time.Now()
+func (s *RentalService) ChargeActiveRental(ctx context.Context, rentalID uint64, timestamp time.Time) error {
 	rental, err := s.repository.Get(rentalID)
 	if err != nil {
 		return fmt.Errorf("failed to get rental: %v", err)
@@ -238,19 +236,18 @@ func (s *RentalService) ChargeActiveRental(ctx context.Context, rentalID uint64)
 	}
 
 	// Queue a new task to charge the rental in (60 - delta) seconds, where `delta = time.Now() - start`
-	delta := time.Now().Sub(start)
-	nextCharge := time.Duration(60-delta.Seconds()) * time.Second
+	nextCharge := timestamp.Add(time.Minute)
 	slog.Info(
 		"queueing task to charge rental",
 		"rentalId", rental.ID,
 		"nextCharge", nextCharge,
 	)
 
-	task, err := tasks.NewRentalsChargeActiveRentalTask(dto.IDToDTO(rental.ID))
+	task, err := tasks.NewRentalsChargeActiveRentalTask(dto.IDToDTO(rental.ID), nextCharge)
 	if err != nil {
 		return err
 	}
-	_, err = s.asynq.Enqueue(task, asynq.ProcessIn(nextCharge))
+	_, err = s.asynq.Enqueue(task, asynq.ProcessAt(nextCharge))
 	if err != nil {
 		return err
 	}
