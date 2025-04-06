@@ -6,7 +6,7 @@ import { Button } from "~/components/ui/button";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table";
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/components/ui/tooltip";
 import { VehicleIndicators } from "~/components/VehicleIndicators";
-import { VehiclePositionBadge } from "~/components/VehiclePositionBadge";
+import { PositionBadge } from "~/components/PositionBadge";
 import { graphql } from "~/gql";
 import { Vehicle } from "~/gql/graphql";
 import { errorMessage } from "~/utils/error";
@@ -63,7 +63,7 @@ export function StartRental(props: Props) {
           <TableRow key={vehicle.id}>
             <TableCell className="font-medium">{vehicle.id}</TableCell>
             <TableCell>
-              <VehiclePositionBadge vehicle={vehicle}/>
+              <PositionBadge position={vehicle.position}/>
             </TableCell>
             <TableCell>
               <VehicleIndicators vehicle={vehicle}/>
