@@ -2,7 +2,7 @@ import { GraphQLError } from "graphql/error";
 import { z } from "zod";
 import { customerSchema } from "~/adapter/in/dto/customer";
 import { invokeService } from "~/infrastructure/service";
-import { isNullish } from "~/infrastructure/utils/helpers.ts";
+import { isNullish } from "~/infrastructure/utils/helpers";
 import type { QueryResolvers } from "~/schema/types.generated";
 
 

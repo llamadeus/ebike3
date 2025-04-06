@@ -1,7 +1,7 @@
 import { sign, verify } from "jsonwebtoken";
 import { z } from "zod";
 import { userSchema } from "~/adapter/in/dto/user";
-import { isNullish } from "~/infrastructure/utils/helpers.ts";
+import { isNullish } from "~/infrastructure/utils/helpers";
 import { UserRole } from "~/schema/types.generated";
 
 
