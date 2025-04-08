@@ -51,7 +51,7 @@ export function RegisterAdminCard() {
       }
 
       toast.success("Admin registered successfully");
-      router.push("/login");
+      window.location.href = "/";
     }
     catch (err) {
       toast.error(errorMessage(err));

@@ -49,7 +49,7 @@ export function RegisterCustomerCard() {
       }
 
       toast.success("Customer registered successfully");
-      router.push("/login");
+      window.location.href = "/";
     }
     catch (err) {
       toast.error(errorMessage(err));
