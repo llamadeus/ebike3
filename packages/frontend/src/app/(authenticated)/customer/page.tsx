@@ -93,7 +93,7 @@ export default function Customer() {
           Logged in as: <b>{data.auth.username}</b>.
           Your credit: <b
           className={data.creditBalance < 0
-            ? "text-destructive-foreground"
+            ? "text-destructive"
             : "text-foreground"}
         >{formatCurrency(data.creditBalance)}</b>.
           Your position: <PositionBadge position={data.position} className="inline-flex"/>.
