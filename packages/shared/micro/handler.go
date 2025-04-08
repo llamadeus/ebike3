@@ -79,6 +79,12 @@ func MakeHandler[TParams any, TInput any, TOutput any](handler Handler[TParams, 
 				return
 			}
 
+			var invokeError *InvokeError
+			if errors.As(err, &invokeError) {
+				sendError(writer, invokeError.Status, invokeError.Message)
+				return
+			}
+
 			slog.Error("error handling request", "error", err)
 
 			sendError(writer, http.StatusInternalServerError, "internal server error")
