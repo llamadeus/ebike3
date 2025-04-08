@@ -354,7 +354,8 @@ func (s *RentalService) createPreliminaryExpense(ctx context.Context, customerID
 		var invokeError *micro.InvokeError
 		if errors.As(err, &invokeError) {
 			if invokeError.Status == 400 {
-				return "", fmt.Errorf("customer %d does not have enough credit balance", customerID)
+				// Customer does not have enough credit balance, stop retrying
+				return "", invokeError
 			}
 		}
 
